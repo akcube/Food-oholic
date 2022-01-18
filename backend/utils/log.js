@@ -21,7 +21,7 @@ const debug = (...args) => {
 	}
 }
 
-const err = (...args) => {
+const error = (...args) => {
 	console.log(BOLD);
 	console.log(RED, "====================================== ERROR ======================================");
 	args.forEach(arg => console.log(MAGENTA, arg));
@@ -29,4 +29,4 @@ const err = (...args) => {
 	console.log(RESET);
 }
 
-export default {debug, err}
+export default {debug, error}
