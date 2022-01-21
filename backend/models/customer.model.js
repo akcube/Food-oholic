@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 import uniqueValidator from "mongoose-unique-validator"
 
 const customerSchema = new mongoose.Schema({
-	email : { type: String, required: true, unique: true }
+	email : { type: String, required: true, unique: true },
 	age : { type: Number, required: true },
 	batch_name : { 
 		type: String, required: true,
@@ -18,16 +18,4 @@ const customerSchema = new mongoose.Schema({
 customerSchema.plugin(uniqueValidator);
 const Customer = mongoose.model('Customer', customerSchema);
 
-const vendorSchema = new mongoose.Schema({
-	email : { type: String, required: true, unique: true }
-	shop_name: { type: String, required: true },
-	business_hours: {
-		open: { type: Date, required: true },
-		close: { type: Date, required: true }
-	}
-});
-
-vendorSchema.plugin(uniqueValidator);
-const Vendor = mongoose.model('Vendor', vendorSchema);
-
-export default {Customer, Vendor};
+export default Customer;
