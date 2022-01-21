@@ -5,11 +5,12 @@ import Customer from "../models/customer.model.js"
 import Vendor from "../models/vendor.model.js"
 import {ReasonPhrases, StatusCodes} from "http-status-codes"
 import Log from "../utils/log.js"
+import jwt from "jsonwebtoken"
+import {secret_key} from "../utils/config.js"
 
 const userRouter = express.Router();
 
 userRouter.post('/register', async (req, res) => {
-
 	// Hash password
 	let hashed_password;
 	try{
@@ -42,25 +43,33 @@ userRouter.post('/register', async (req, res) => {
 			business_hours : req.body.business_hours,
 		});
 
-	Log.debug(user);
-	Log.debug(userType);
-
 	try{ await user.save(); }
-	catch(e){ 
-		Log.error(e);
-		Log.error("USER NO SAVE");
-		return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: ReasonPhrases.INTERNAL_SERVER_ERROR}); 
-	}
+	catch(e){ return res.status(StatusCodes.BAD_REQUEST).json({error: ReasonPhrases.BAD_REQUEST}); }
 
+	// If user saves but type fails remove user as well
 	try { await userType.save(); }
 	catch(e){
 		await User.deleteOne({email : req.body.email});
-		Log.error("TYPE NO SAVE");
-		return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: ReasonPhrases.INTERNAL_SERVER_ERROR});;
+		return res.status(StatusCodes.BAD_REQUEST).json({error: ReasonPhrases.BAD_REQUEST});;
 	}
 	
-	Log.error("WORKS")
 	return res.status(StatusCodes.OK).end();
+});
+
+userRouter.post('/login', async (req, res) => {
+	const user = await User.findOne({ email: req.body.email });
+	const valid = (user === null) ? false : await bcrypt.compare(req.body.password, user.hashed_password);
+	if(!valid){ 
+		return res.status(StatusCodes.UNAUTHORIZED).json({error: ReasonPhrases.UNAUTHORIZED})
+	}
+
+	const payload = {
+		id: user.id,
+		email: user.email,
+		user_type: user.user_type
+	};
+	const signedToken = jwt.sign(payload, secret_key, {expiresIn : 7200});
+	return res.status(StatusCodes.OK).json({token: signedToken, success: true});
 });
 
 export default userRouter
