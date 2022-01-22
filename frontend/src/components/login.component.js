@@ -1,10 +1,6 @@
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
@@ -12,13 +8,15 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Form, Input, Button as AntButton, Checkbox as AntCheckbox} from 'antd';
+import { UserOutlined, LockOutlined } from '@ant-design/icons';
 
 const theme = createTheme();
 
 export default class LoginPage extends React.Component {
   constructor(props){
     super(props);
-    this.handleSubmit = this.handleSubmit.bind(this);
+    this.onFinish = this.onFinish.bind(this);
     this.Copyright = this.Copyright.bind(this);
   }
 
@@ -35,14 +33,8 @@ export default class LoginPage extends React.Component {
     );
   }
 
-  handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    // eslint-disable-next-line no-console
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+  onFinish = (values) => {
+    console.log('Received values of form: ', values);
   };
 
   render(){
@@ -67,56 +59,71 @@ export default class LoginPage extends React.Component {
           <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
             <Box
               sx={{
-                my: 8,
-                mx: 4,
+                my: 12,
+                mx: 12,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
               }}
             >
-              <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                <LockOutlinedIcon />
+              <Avatar sx={{ height: 65, width: 65, m: 3, bgcolor: 'secondary.main' }}>
+                <LockOutlinedIcon sx={{ height: 35, width: 35 }} />
               </Avatar>
-              <Typography component="h1" variant="h5">
+              <Typography component="h1" variant="h4">
                 Sign in
               </Typography>
-              <Box component="form" noValidate onSubmit={this.handleSubmit} sx={{ mt: 1 }}>
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  autoFocus
-                />
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="current-password"
-                />
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  sx={{ mt: 3, mb: 2 }}
+              <Box sx={{ mt: 4 }}>
+                <Form
+                  name="normal_login"
+                  className="login-form"
+                  initialValues={{
+                    remember: true,
+                  }}
+                  onFinish={this.onFinish}
                 >
-                  Sign In
-                </Button>
+                  <Form.Item
+                    name="email"
+                    rules={[
+                      {
+                        required: true,
+                        type: "email", 
+                        message: 'Please input a valid email',
+                      },
+                    ]}
+                  >
+                    <Input style={{ height: 55 }} prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Email" />
+                  </Form.Item>
+                  <Form.Item
+                    name="password"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please input your password correctly',
+                      },
+                    ]}
+                  >
+                    <Input
+                      style={{ height: 55 }}
+                      prefix={<LockOutlined className="site-form-item-icon" />}
+                      type="password"
+                      placeholder="Password"
+                    />
+                  </Form.Item>
+                  <Form.Item>
+                    <Form.Item name="remember" valuePropName="checked" noStyle>
+                      <AntCheckbox>Remember me</AntCheckbox>
+                    </Form.Item>
+                  </Form.Item>
+
+                  <Form.Item>
+                    <AntButton style={{ width: 350, height: 50 }} type="primary" htmlType="submit" className="login-form-button">
+                      Log in
+                    </AntButton>
+                  </Form.Item>
+                </Form>
                 <Grid container>
-                  <Grid item xs>
-                    <Link href="#" variant="body2">
-                      Forgot password?
-                    </Link>
-                  </Grid>
                   <Grid item>
-                    <Link href="#" variant="body2">
+                    <Link href="/signup" variant="body2">
                       {"Don't have an account? Sign Up"}
                     </Link>
                   </Grid>
