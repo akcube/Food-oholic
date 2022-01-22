@@ -24,7 +24,7 @@ export default class LoginPage extends React.Component {
     return (
       <Typography variant="body2" color="text.secondary" align="center" {...args}>
         {'Copyright © '}
-        <Link color="inherit" href="https://mui.com/">
+        <Link color="inherit" href="/">
           Food'oholic
         </Link>{' '}
         {new Date().getFullYear()}
@@ -82,7 +82,7 @@ export default class LoginPage extends React.Component {
                   onFinish={this.onFinish}
                 >
                   <Form.Item
-                    name="email"
+                    name="email"  
                     rules={[
                       {
                         required: true,
@@ -128,7 +128,7 @@ export default class LoginPage extends React.Component {
                     </Link>
                   </Grid>
                 </Grid>
-                <this.Copyright sx={{ mt: 5 }} />s
+                <this.Copyright sx={{ mt: 5 }} />
               </Box>
             </Box>
           </Grid>
