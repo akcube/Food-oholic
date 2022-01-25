@@ -10,10 +10,13 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Form, Input, Button as AntButton, Checkbox as AntCheckbox} from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { loginUser } from '../services/auth.service';
+import { AuthContext } from '../services/authContext';
+import { useNavigate } from 'react-router';
 
 const theme = createTheme();
 
-export default class LoginPage extends React.Component {
+class LoginPage extends React.Component {
   constructor(props){
     super(props);
     this.onFinish = this.onFinish.bind(this);
@@ -33,8 +36,12 @@ export default class LoginPage extends React.Component {
     );
   }
 
-  onFinish = (values) => {
+  static contextType = AuthContext;
+  onFinish = async (values) => {
     console.log('Received values of form: ', values);
+    await loginUser(values, this.context);
+    if(this.context.isAuthenticated()) this.props.navigate("/");
+    else alert("Login failed");
   };
 
   render(){
@@ -136,4 +143,9 @@ export default class LoginPage extends React.Component {
       </ThemeProvider>
     );
   }
+}
+
+export default function(props) {
+  const navigation = useNavigate();
+  return <LoginPage {...props} navigate={navigation} />;
 }

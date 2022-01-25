@@ -30,7 +30,6 @@ userRouter.post('/register', async (req, res) => {
 		image : req.body.image
 	});
 
-
 	const userType = (req.body.user_type === 0) 
 		? new Customer({
 			email : req.body.email,
@@ -40,27 +39,40 @@ userRouter.post('/register', async (req, res) => {
 		: new Vendor({
 			email : req.body.email,
 			shop_name : req.body.shop_name,
-			business_hours : req.body.business_hours,
+			business_hours : {
+				open : new Date(req.body.open_time),
+				close: new Date(req.body.close_time)
+			}
 		});
 
+	Log.debug(user);
+	Log.debug(userType);
+
 	try{ await user.save(); }
-	catch(e){ return res.status(StatusCodes.BAD_REQUEST).json({error: ReasonPhrases.BAD_REQUEST}); }
+	catch(e){ Log.error(e); return res.status(StatusCodes.BAD_REQUEST).json({error: ReasonPhrases.BAD_REQUEST}); }
 
 	// If user saves but type fails remove user as well
 	try { await userType.save(); }
 	catch(e){
+		Log.error(e);
 		await User.deleteOne({email : req.body.email});
 		return res.status(StatusCodes.BAD_REQUEST).json({error: ReasonPhrases.BAD_REQUEST});;
 	}
 	
-	return res.status(StatusCodes.OK).end();
+	const payload = {
+		id: user.id,
+		email: user.email,
+		user_type: user.user_type
+	};
+	const signedToken = jwt.sign(payload, secret_key, {expiresIn : 7200});
+	return res.status(StatusCodes.OK).json({success: true, token: signedToken});
 });
 
 userRouter.post('/login', async (req, res) => {
 	const user = await User.findOne({ email: req.body.email });
 	const valid = (user === null) ? false : await bcrypt.compare(req.body.password, user.hashed_password);
 	if(!valid){ 
-		return res.status(StatusCodes.UNAUTHORIZED).json({error: ReasonPhrases.UNAUTHORIZED})
+		return res.status(StatusCodes.UNAUTHORIZED).json({error: ReasonPhrases.UNAUTHORIZED, success: false})
 	}
 
 	const payload = {
@@ -69,7 +81,7 @@ userRouter.post('/login', async (req, res) => {
 		user_type: user.user_type
 	};
 	const signedToken = jwt.sign(payload, secret_key, {expiresIn : 7200});
-	return res.status(StatusCodes.OK).json({token: signedToken, success: true});
+	return res.status(StatusCodes.OK).json({success: true, token: signedToken});
 });
 
 export default userRouter

@@ -9,15 +9,18 @@ import Tab from '@mui/material/Tab';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Form, Input, Upload, TimePicker } from 'antd';
+import { Form, Input, Upload, TimePicker, Button } from 'antd';
 import { PhoneOutlined , UserOutlined, LockOutlined, InboxOutlined, ShopOutlined } from '@ant-design/icons';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import { Select } from 'antd';
 import Paper from '@mui/material/Paper';
+import { registerUser } from '../services/user.service';
+import { AuthContext } from '../services/authContext';
+import { useNavigate } from 'react-router';
 
 const theme = createTheme();
 
-export default class SignUpPage extends React.Component {
+class SignUpPage extends React.Component {
 
   constructor(props){
     super(props);
@@ -56,8 +59,13 @@ export default class SignUpPage extends React.Component {
     this.setState({ user_type : 1-this.state.user_type });
   };
 
-  onFinish = (values) => {
-    console.log(values);
+  static contextType = AuthContext;
+  onFinish = async (user) => {
+    let payload = {...user, user_type: this.state.user_type};
+    console.log(payload);
+    await registerUser({...user, user_type: this.state.user_type}, this.context);
+    if(this.context.isAuthenticated()) this.props.navigate("/");
+    else alert("Registration failed");
   }
 
   TabPanel = () => {
@@ -108,7 +116,7 @@ export default class SignUpPage extends React.Component {
           <Input style={{height: 55}} placeholder="Stall / shop name" prefix={<ShopOutlined style={{marginRight: 8}} className="site-form-item-icon" />}/>
         </Form.Item>
         <Box sx={{display: 'flex', flexDirection: 'row'}}>
-          <Form.Item name="open-time" style={{width: '100%', marginRight: 10}}
+          <Form.Item name="open_time" style={{width: '100%', marginRight: 10}}
             rules={[
               {
                 required: true,
@@ -118,7 +126,7 @@ export default class SignUpPage extends React.Component {
           >
             <TimePicker style={{height:55, width: '100%'}} placeholder='Start time'/>
           </Form.Item>
-          <Form.Item name="close-time" style={{width: '100%', marginLeft: 10}}
+          <Form.Item name="close_time" style={{width: '100%', marginLeft: 10}}
             rules={[
               {
                 required: true,
@@ -155,19 +163,19 @@ export default class SignUpPage extends React.Component {
           <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
           <Box
             sx={{
-              marginTop: 8,
+              marginTop: 2,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
             }}
           >
-            <Avatar style={{width: 75, height: 75, marginBottom: 30}} sx={{ m: 1, bgcolor: 'secondary.main' }}>
-              <LockOutlinedIcon style={{width: 45, height: 45}}/>
+            <Avatar style={{width: 55, height: 55, marginBottom: 15}} sx={{ m: 1, bgcolor: 'secondary.main' }}>
+              <LockOutlinedIcon style={{width: 25, height: 25}}/>
             </Avatar>
             <Typography component="h1" variant="h4">
               Sign up
             </Typography>
-            <Box sx={{ mt: 3, alignItems: 'center'}}>
+            <Box sx={{ mt: 1, alignItems: 'center'}}>
               <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs style={{width: 600}} value={this.state.user_type} onChange={this.handleChange}>
                   <Tab label="Student / Customer" id={"0"}/>
@@ -257,16 +265,20 @@ export default class SignUpPage extends React.Component {
                   <Box sx={{ borderTop: 1, borderColor: 'divider' }}>
                     <this.TabPanel/>
                   </Box>
+                  <Form.Item>
+                    <Button style={{ width: '100%', height: 50 }} type="primary" htmlType="submit" className="login-form-button">
+                      Register
+                    </Button>
+                  </Form.Item>
                 </Form>
               </Box>
-              <Grid container sx={{mt: 3}}>
+              <Grid container sx={{mt: 1}}>
                 <Grid item>
                   <Link href="/login" variant="body2">
                     {"Already have an account? Sign In"}
                   </Link>
                 </Grid>
               </Grid>
-              <this.Copyright sx={{ mt: 5 }} />
             </Box>
           </Box>
         </Grid>
@@ -274,4 +286,9 @@ export default class SignUpPage extends React.Component {
       </ThemeProvider>
     );
   }
+}
+
+export default function(props) {
+  const navigation = useNavigate();
+  return <SignUpPage {...props} navigate={navigation} />;
 }
