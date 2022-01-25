@@ -4,7 +4,7 @@ import { useAuth } from "../services/authContext";
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   return (
-    (!useAuth().isAuthenticated()) ? <Navigate to='/login'/> : children
+    (!useAuth().isAuthenticated()) ? <Navigate to='/login' /> : children
   );
 }
 
