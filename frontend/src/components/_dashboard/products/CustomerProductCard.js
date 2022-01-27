@@ -20,6 +20,10 @@ import { DeleteProduct, UpdateProduct } from '../../../services/food.service';
 import Rating from '@mui/material/Rating';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import NumbersIcon from '@mui/icons-material/Numbers';
+import { AddOrder } from '../../../services/order.service';
+import { GetCustomer } from '../../../services/customer.service';
+import { addToWallet } from '../../../services/user.service';
+import Chip from '@mui/material/Chip';
 // ----------------------------------------------------------------------
 
 const ProductImgStyle = styled('img')({
@@ -30,15 +34,6 @@ const ProductImgStyle = styled('img')({
   position: 'absolute'
 });
 
-const FABstyle = {
-  marginLeft: 210,
-  marginTop: 65,
-  bottom: 'auto',
-  right: 'auto',
-  position: 'fixed',
-};
-
-
 // ----------------------------------------------------------------------
 
 CustomerProductCard.propTypes = {
@@ -46,7 +41,7 @@ CustomerProductCard.propTypes = {
 };
 
 export default function CustomerProductCard({ product, vendors }) {
-  const {name, price, isVeg, image, addons, tags, rating} = product;
+  const {name, price, isVeg, image, addons, tags, rating, _id} = product;
   const vendor_id = product.vendor;
   const [form] = Form.useForm()
   const [open, setOpen] = useState(false);
@@ -97,8 +92,27 @@ export default function CustomerProductCard({ product, vendors }) {
     getRating();
   }, []);
 
-  const onFinish = async (values) => {
-    console.log(values);
+  const onFinish = async (order) => {
+    let orderCost = Number(price);
+    for(var v in order.addons)
+      for(var aon in addons)
+        if(addons[aon].addon == order.addons[v]) orderCost += Number(addons[aon].price);
+    orderCost *= Number(order.quantity);
+    order.cost = orderCost;
+    order.customer = context.data.user.type_id;
+    order.food = _id;
+    let customerData = await GetCustomer(context, context.data.user.type_id);
+    if(customerData.success == false){
+      message.error("Internal server error");
+      return;
+    }
+    if(customerData.data.wallet < orderCost){
+      message.error("Insufficient money in wallet");
+      return;
+    }
+    addToWallet(context, -orderCost);
+    AddOrder(context, order);
+    message.success("Order placed successfully!");
     form.resetFields();
     handleClose();
   }
@@ -110,11 +124,9 @@ export default function CustomerProductCard({ product, vendors }) {
   const onFormDataChange = (changedFields, allFields) => {
     if(allFields[0].errors.length > 0 || allFields[1].errors.length > 0) setOrderPrice(fCurrency(0));
     let new_price = Number(price);
-    for(var v in allFields[1].value){
-      for(var aon in addons){
+    for(var v in allFields[1].value)
+      for(var aon in addons)
         if(addons[aon].addon == allFields[1].value[v]) new_price += Number(addons[aon].price);
-      }
-    }
     new_price *= Number(allFields[0].value);
     setOrderPrice(fCurrency(new_price));
   }
@@ -159,7 +171,6 @@ export default function CustomerProductCard({ product, vendors }) {
         </Form>
       </Box>
     </Modal>
-    <Link onClick={orderItem}>
       <Card>
         <Box sx={{ pt: '100%', position: 'relative' }}>
           <ProductImgStyle src={image} />
@@ -167,6 +178,15 @@ export default function CustomerProductCard({ product, vendors }) {
 
         <Stack spacing={2} sx={{ p: 3 }}
         >
+
+        <Stack direction="row">
+            {
+              tags.map(tag => {
+                return <Chip sx={{mr: 1}} label={tag.tag} size="small" variant="outlined" />
+              })
+            }
+        </Stack>
+
         <Stack direction="row" alignItems="center" justifyContent="space-between">
             <Typography noWrap variant="h6">
                 {name}
@@ -181,13 +201,14 @@ export default function CustomerProductCard({ product, vendors }) {
             <Typography variant="h6">
               {fCurrency(price)}
             </Typography>
-            <Fab color='secondary' style={FABstyle}>
+          <Link onClick={orderItem}>
+            <Fab color='secondary'>
               <ShoppingCartIcon/>
             </Fab>
+          </Link>
           </Stack>
         </Stack>
       </Card>
-    </Link>
     </>
   );
 }
