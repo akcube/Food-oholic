@@ -17,6 +17,7 @@ import { Button } from '@mui/material';
 import { Form, Input, message, Checkbox, Space} from 'antd';
 import { ModalStyle } from '../../styles/ModalStyle';
 import { DeleteProduct, UpdateProduct } from '../../../services/food.service';
+import { Rating } from '@mui/material';
 // ----------------------------------------------------------------------
 
 const ProductImgStyle = styled('img')({
@@ -34,12 +35,13 @@ VendorProductCard.propTypes = {
 };
 
 export default function VendorProductCard({ product }) {
-  const {name, price, isVeg, image, addons, tags, vendor} = product;
+  const {name, price, isVeg, image, addons, tags, vendor, rating} = product;
   const [form] = Form.useForm()
   const [open, setOpen] = useState(false);
   const [imagedata, setImageData] = useState(product.image);
   const [typeid] = useState(useAuth().data.user.type_id);
   const context = useContext(AuthContext);
+  const [ratingValue, setRatingValue] = useState(0);
 
   const handleOpen = () => {
     setOpen(true);
@@ -48,6 +50,11 @@ export default function VendorProductCard({ product }) {
   const handleClose = () => {
     setOpen(false);
   };
+
+  const getRating = () => {
+    if(rating.sum_rating == 0) setRatingValue(0);
+    else setRatingValue(rating.sum_rating/rating.num_rating);
+  }
 
   const deleteItem = async () => {
     await DeleteProduct(context, {vendor: vendor, name: name});
@@ -203,16 +210,17 @@ export default function VendorProductCard({ product }) {
           <ProductImgStyle src={image} />
         </Box>
 
-        <Stack spacing={2} sx={{ p: 3 }}
+        <Stack spacing={2} sx={{ p: 2 }}
         >
+          <Stack direction="row" alignItems="center" justifyContent="center">
+            <Typography variant="h5" noWrap>
+                {name}
+            </Typography>
+          </Stack>
           <Stack direction="row" alignItems="center" justifyContent="space-between">
           <ColorPreview colors={[(isVeg ? "#237d3b" : "#7d1919")]} />
-            <Typography variant="h5">
-              &nbsp;
-              {name}
-            </Typography>
+            <Rating disabled name="half-rating" defaultValue={ratingValue} precision={0.5}/>
             <Typography variant="h6">
-              &nbsp;
               {fCurrency(price)}
             </Typography>
           </Stack>

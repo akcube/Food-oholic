@@ -21,6 +21,7 @@ import VendorDashboard from "./pages/Vendor/Dashboard"
 import CustomerDashboard from "./pages/Customer/Dashboard"
 import { Navigate } from "react-router"
 import VendorProducts from "./pages/Vendor/Products"
+import CustomerProducts from "./pages/Customer/Products"
 
 axios.defaults.baseURL = 'http://localhost:27017'
 
@@ -44,7 +45,7 @@ function App(){
             <Route exact path='/dashboard/products' element={
               <ProtectedRoute>
                 <DashboardLayout>
-                  <TypeProtectedRoute VendorComponent={<VendorProducts/>} CustomerComponent={<Page404/>}/>
+                  <TypeProtectedRoute VendorComponent={<VendorProducts/>} CustomerComponent={<CustomerProducts/>}/>
                 </DashboardLayout>
               </ProtectedRoute>
             }/>

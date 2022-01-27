@@ -28,7 +28,7 @@ const VendorProducts = () => {
   const [open, setOpen] = useState(false);
   const [imagedata, setImageData] = useState('no-image');
   const [typeid] = useState(useAuth().data.user.type_id);
-  const [PRODUCTS, setProducts] = useState([{}]);
+  const [PRODUCTS, setProducts] = useState([]);
   const context = useContext(AuthContext);
   
   useAsyncEffect(async () => {
