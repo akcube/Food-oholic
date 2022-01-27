@@ -50,13 +50,15 @@ export default function CustomerProductCard({ product, vendors }) {
   const vendor_id = product.vendor;
   const [form] = Form.useForm()
   const [open, setOpen] = useState(false);
-  const [imagedata, setImageData] = useState(product.image);
   const [typeid] = useState(useAuth().data.user.type_id);
   const [vendor, setVendor] = useState({});
   const context = useContext(AuthContext);
   const [ratingValue, setRatingValue] = useState(0);
+  const [cboxOptions,setCboxOptions] = useState([]);
+  const [orderPrice, setOrderPrice] = useState(product.price);
 
   const handleOpen = () => {
+    setOrderPrice(fCurrency(price));
     setOpen(true);
   };
 
@@ -78,13 +80,26 @@ export default function CustomerProductCard({ product, vendors }) {
     }
   }
 
+  const getCboxOptions = () => {
+    setCboxOptions(addons.map(({addon, price}) => {
+      return (
+        {
+          label: addon + ' - ' + fCurrency(price),
+          value: addon
+        }
+      );
+    }));
+  }
+
   useEffect(() => {
     getVendor(vendor_id);
+    getCboxOptions();
     getRating();
   }, []);
 
   const onFinish = async (values) => {
-    
+    console.log(values);
+    form.resetFields();
     handleClose();
   }
 
@@ -93,9 +108,15 @@ export default function CustomerProductCard({ product, vendors }) {
   }
 
   const onFormDataChange = (changedFields, allFields) => {
-    console.log(changedFields);
-    console.log("All now");
-    console.log(allFields);
+    if(allFields[0].errors.length > 0 || allFields[1].errors.length > 0) setOrderPrice(fCurrency(0));
+    let new_price = Number(price);
+    for(var v in allFields[1].value){
+      for(var aon in addons){
+        if(addons[aon].addon == allFields[1].value[v]) new_price += Number(addons[aon].price);
+      }
+    }
+    new_price *= Number(allFields[0].value);
+    setOrderPrice(fCurrency(new_price));
   }
 
   return (
@@ -112,7 +133,7 @@ export default function CustomerProductCard({ product, vendors }) {
         <h1 style={{marginTop: 30, marginBottom: 30}} id="child-modal-title">Order item: {name}</h1>
         <Form form={form} name="product-data" onFinish={onFinish} onFieldsChange={onFormDataChange}>
           <Typography variant='h4'>Quantity</Typography>
-          <Form.Item name='quantity' style={{marginTop: 15}}
+          <Form.Item name='quantity' style={{marginTop: 15}} initialValue={'1'}
             rules={[
               {
                 required: true,
@@ -124,26 +145,16 @@ export default function CustomerProductCard({ product, vendors }) {
           </Form.Item>
           <Typography variant='h4'>Addons</Typography>
           <Form.Item name='addons'>
-              {
-                addons.map(({addon, price}) => {
-                  return(
-                    <Box
-                      sx={{
-                        width: '100%',
-                        display: 'flex',
-                        marginTop: 1,
-                        flexDirection: 'row',
-                    }}>
-                      <Checkbox key={addon} style={{marginTop: 3}} size='large'> </Checkbox>
-                      <Typography variant='h6' sx={{marginRight: 5}}>{addon}</Typography>
-                      <Typography variant='subtitle2'>{fCurrency(price)}</Typography>
-                    </Box>
-                  );
-                })  
-              }
+            <Checkbox.Group
+              style={{marginLeft: 7}}
+              options={cboxOptions}
+            />
           </Form.Item>
+
+          <Typography sx={{ml:0.5}} variant='h4'>{"Price: " + fCurrency(orderPrice)}</Typography>
+
             <Form.Item>
-              <Button variant='contained' sx={{mr:1}} onClick={()=>{form.submit()}}> Update Item </Button>
+              <Button variant='contained' sx={{mr:1, mt: 2}} onClick={()=>{form.submit()}}> Order Item </Button>
             </Form.Item>
         </Form>
       </Box>
