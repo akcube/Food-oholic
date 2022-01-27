@@ -56,13 +56,16 @@ userRouter.post('/register', async (req, res) => {
 	catch(e){
 		Log.error(e);
 		await User.deleteOne({email : req.body.email});
-		return res.status(StatusCodes.BAD_REQUEST).json({error: ReasonPhrases.BAD_REQUEST});;
+		return res.status(StatusCodes.BAD_REQUEST).json({error: ReasonPhrases.BAD_REQUEST});
 	}
 	
 	const payload = {
 		id: user.id,
+		type_id: userType.id,
 		email: user.email,
-		user_type: user.user_type
+		user_type: user.user_type,
+		first_name: user.first_name,
+		last_name: user.last_name
 	};
 	const signedToken = jwt.sign(payload, secret_key, {expiresIn : 7200});
 	return res.status(StatusCodes.OK).json({success: true, token: signedToken});
@@ -74,14 +77,32 @@ userRouter.post('/login', async (req, res) => {
 	if(!valid){ 
 		return res.status(StatusCodes.UNAUTHORIZED).json({error: ReasonPhrases.UNAUTHORIZED, success: false})
 	}
+	const user_type = (user.user_type === 0)
+	? await Customer.findOne({ email: req.body.email })
+	: await Vendor.findOne({ email: req.body.email });
 
 	const payload = {
 		id: user.id,
+		type_id: user_type.id,
 		email: user.email,
-		user_type: user.user_type
+		user_type: user.user_type,
+		first_name: user.first_name,
+		last_name: user.last_name
 	};
+
 	const signedToken = jwt.sign(payload, secret_key, {expiresIn : 7200});
 	return res.status(StatusCodes.OK).json({success: true, token: signedToken});
+});
+
+userRouter.post('/walletAdd', async(req, res) => {
+	const customer = await Customer.findOne({ email: req.body.email });
+	let current_amount = customer.wallet;
+	current_amount += req.body.amount;
+	try{
+		await Customer.updateOne({email: customer.email}, {wallet: current_amount});
+	}
+	catch(e) {return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: ReasonPhrases.INTERNAL_SERVER_ERROR})}
+	return res.status(StatusCodes.OK).json({amount: current_amount});
 });
 
 export default userRouter

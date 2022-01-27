@@ -8,18 +8,18 @@ const foodSchema = new mongoose.Schema({
 		ref: 'Vendor',
 		required: true
 	},
-	image: { type: String },
+	image: { type: String, default: "no-image" },
 	price: { type: Number, integer: true, required: true },
 	rating: {
 		sum_rating: { type: Number, default: 0 },
 		num_rated: { type: Number, default: 0 }
-	}
+	},
 	isVeg: { type: Boolean, required: true },
 	addons: [{
-		addon: { type: String, required: true }
+		addon: { type: String, required: true },
 		price: { type: Number, integer: true, required: true }
 	}],
-	tags: [{ type: String }]
+	tags: [{ tag: { type: String, required: true } }]
 });
 
 foodSchema.plugin(validateInteger);

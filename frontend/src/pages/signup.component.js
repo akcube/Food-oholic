@@ -217,6 +217,7 @@ class SignUpPage extends React.Component {
                         {
                           required: true,
                           whitespace: true,
+                          pattern: '^[0-9]+$',
                           message: 'Please enter your contact number'
                         },
                       ]}

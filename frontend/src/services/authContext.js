@@ -1,5 +1,6 @@
 import React, { Component } from "react"
 import jwt_decode from "jwt-decode"
+import { logoutUser } from "./auth.service";
 
 const AuthContext = React.createContext();
 
@@ -45,4 +46,18 @@ class AuthProvider extends Component{
 
 const useAuth = () => React.useContext(AuthContext);
 
-export {AuthProvider, useAuth, AuthContext}
+const badToken = (authContext) => {
+    let token = localStorage.getItem("jwt");
+    try{
+        let decoded_payload = jwt_decode(token);
+        var dateNow = new Date();
+        if(decoded_payload.exp * 1000 < dateNow.getTime()) throw Object.assign(new Error("Expired"), {code: 402});
+        return false;
+    }
+    catch(e){
+        logoutUser(authContext);
+        return true;
+    }
+}
+
+export {AuthProvider, useAuth, AuthContext, badToken}

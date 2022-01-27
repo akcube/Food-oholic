@@ -1,4 +1,5 @@
 import axios from "axios"
+import { badToken } from "./authContext";
 
 const RegisterUser = async (user, authContext) => {
     let User;
@@ -14,4 +15,16 @@ const RegisterUser = async (user, authContext) => {
     authContext.login(User);
 }
 
+const AddToWallet = async (authContext, amt) => {
+    if(badToken(authContext)) return;
+    try{
+        let res = await axios.post("/user/walletAdd", {email: authContext.data.user.email, amount: amt});
+        return {success: true, amount: res.data.amount};
+    }
+    catch(e){
+        return {success: false, message: e.response.data.error};
+    }
+}
+
 export const registerUser = RegisterUser
+export const addToWallet = AddToWallet

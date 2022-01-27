@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 // material
 import { styled } from '@mui/material/styles';
-import { Box, Link, Button, Drawer, Typography, Avatar, Stack } from '@mui/material';
+import { Box, Link, Drawer, Typography, Avatar } from '@mui/material';
 // components
 import Logo from '../../components/Logo';
 import Scrollbar from '../../components/Scrollbar';
@@ -13,6 +13,7 @@ import { MHidden } from '../../components/@material-extend';
 import sidebarConfig from './SidebarConfig';
 //
 import account from '../../_mocks_/account'
+import { AuthContext, useAuth } from '../../services/authContext';
 // ----------------------------------------------------------------------
 
 
@@ -42,8 +43,10 @@ DashboardSidebar.propTypes = {
 
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
   const { pathname } = useLocation();
+  const context = useContext(AuthContext);
 
   useEffect(() => {
+    console.log(context);
     if (isOpenSidebar) {
       onCloseSidebar();
     }
@@ -69,10 +72,10 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
             <Avatar src={account.photoURL} alt="photoURL" />
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {account.displayName}
+                {useAuth().data.user.first_name + " " + useAuth().data.user.last_name}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {account.role}
+                {(useAuth().data.user.user_type === 0) ? "Customer" : "Vendor"}
               </Typography>
             </Box>
           </AccountStyle>
