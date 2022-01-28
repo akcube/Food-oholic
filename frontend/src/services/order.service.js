@@ -12,6 +12,17 @@ export const AddOrder = async (authContext, order) => {
     }
 }
 
+export const RateOrder = async (authContext, order, rating) => {
+    if(badToken(authContext)) return;
+    if(order.status !== 'Completed') return {success: false};
+    try{
+        await axios.post("/order/rate", {id: order._id, rating: rating});
+        await axios.post("/food/rate", {id: order.food, rating: rating});
+        return {success: true};
+    }
+    catch(e){ return {success: false}; }
+}
+
 const nxt = {
     'Placed' : 'Accepted',
     'Accepted' : 'Cooking',

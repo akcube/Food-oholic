@@ -47,6 +47,23 @@ foodRouter.post('/update', async (req, res) => {
 	return res.status(StatusCodes.OK).send(ReasonPhrases.OK);
 });
 
+foodRouter.post('/rate', async(req, res) => {
+    
+    let checkExists = await Food.findById(req.body.id);
+    if(checkExists === null) return res.status(StatusCodes.BAD_REQUEST).json({error: ReasonPhrases.BAD_REQUEST});
+
+    let update = checkExists.rating;
+    update.sum_rating += Number(req.body.rating);
+    update.num_rated += 1;
+
+	try{
+		await Food.updateOne({_id: req.body.id}, {rating: update});
+	}
+	catch(e) {Log.error(e); return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: ReasonPhrases.INTERNAL_SERVER_ERROR})}
+
+	return res.status(StatusCodes.OK).json({success: true});
+});
+
 foodRouter.get('/', async (req, res) => {
     let query = (req.query.vendor === undefined) ? {} : {vendor: req.query.vendor};
     try{

@@ -19,6 +19,7 @@ const orderSchema = new mongoose.Schema({
 	cost: { type: Number, required: true },
 	addons: [{type: String}],
 	isRated: { type: Boolean, default: false },
+	rating: { type: Number, default: 0},
 }, { timestamps: true });
 
 orderSchema.plugin(validateInteger);

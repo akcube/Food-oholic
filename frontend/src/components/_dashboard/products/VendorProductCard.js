@@ -6,7 +6,7 @@ import { styled } from '@mui/material/styles';
 import { fCurrency } from '../../../utils/formatNumber';
 //
 import ColorPreview from "../../ColorPreview"
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Modal from '@mui/material/Modal';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import { MinusCircleOutlined, PlusOutlined, InboxOutlined } from '@ant-design/icons';
@@ -52,9 +52,15 @@ export default function VendorProductCard({ product }) {
   };
 
   const getRating = () => {
-    if(rating.sum_rating == 0) setRatingValue(0);
-    else setRatingValue(rating.sum_rating/rating.num_rating);
+    let ret = 0;
+    if(rating.sum_rating == 0) ret = 0;
+    else ret = (rating.sum_rating/rating.num_rated);
+    console.log(ret);
+    return ret;
   }
+
+  useEffect(()=>{
+  }, [])
 
   const deleteItem = async () => {
     await DeleteProduct(context, {vendor: vendor, name: name});
@@ -219,7 +225,7 @@ export default function VendorProductCard({ product }) {
           </Stack>
           <Stack direction="row" alignItems="center" justifyContent="space-between">
           <ColorPreview colors={[(isVeg ? "#237d3b" : "#7d1919")]} />
-            <Rating disabled name="half-rating" defaultValue={ratingValue} precision={0.5}/>
+            <Rating readOnly defaultValue={getRating()} precision={0.5}/>
             <Typography variant="h6">
               {fCurrency(price)}
             </Typography>

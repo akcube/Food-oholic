@@ -27,15 +27,25 @@ orderRouter.post('/update', async(req, res) => {
 	
     let query = {_id: req.body.id};
     let status = {status: req.body.status};
-    Log.debug(query);
-    Log.debug(status);
 
 	try{
 		await Order.updateOne(query, status);
 	}
 	catch(e) {Log.error(e); return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: ReasonPhrases.INTERNAL_SERVER_ERROR})}
 
-    Log.debug("Worked!");
+	return res.status(StatusCodes.OK).json({success: true});
+});
+
+orderRouter.post('/rate', async(req, res) => {
+	
+    let query = {_id: req.body.id};
+    let update = {rating: req.body.rating, isRated: true};
+
+	try{
+		await Order.updateOne(query, update);
+	}
+	catch(e) {Log.error(e); return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: ReasonPhrases.INTERNAL_SERVER_ERROR})}
+
 	return res.status(StatusCodes.OK).json({success: true});
 });
 

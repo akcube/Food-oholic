@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 // material
-import { Card, Typography, CardHeader, CardContent, Stack, Chip, Button, IconButton } from '@mui/material';
+import { Card, Typography, CardHeader, CardContent, Rating, Stack, Chip } from '@mui/material';
 import {
   Timeline,
   TimelineItem,
@@ -18,19 +18,27 @@ import { PickupOrder } from '../../../services/order.service';
 import { useContext } from 'react';
 import { AuthContext } from '../../../services/authContext';
 import { message } from 'antd'
+import {RateOrder} from '../../../services/order.service'
 
 // ----------------------------------------------------------------------
 
 // ----------------------------------------------------------------------
 
 function OrderItem({ item, FOODLIST, setRefState, refstate}) {
-  const { createdAt, status, food, quantity, addons, cost, customer } = item;
+  const { createdAt, status, food, quantity, addons, cost, _id, rating, isRated } = item;
   const context = useContext(AuthContext);
 
   const getFood = id => {
     for(var v in FOODLIST)
       if(FOODLIST[v]._id == id) return FOODLIST[v];
     return {name: "Doesn't exist", addons: [], price: 0, tags: []};
+  }
+
+  const rateProduct = async (event, value) => {
+    let res = await RateOrder(context, item, value);
+    if(res.success == true) message.success("Successfully submitted rating");
+    else message.error("Server error");
+    setRefState(refstate^1);
   }
 
   return (
@@ -48,9 +56,21 @@ function OrderItem({ item, FOODLIST, setRefState, refstate}) {
       </TimelineSeparator>
       <TimelineContent>
         <Typography variant="subtitle1">{getFood(food).name + " - " + fCurrency(cost)}</Typography>
+        <Stack direction="row">
+            {
+              getFood(food).addons.map(addon => {
+                return <Chip sx={{mt: 1, mr: 1}} label={addon.addon} size="small" variant="outlined" />
+              })
+            }
+        </Stack>
         <Typography variant="caption" sx={{ color: 'text.secondary', ml: 0.5 }}>
           {fDateTime(createdAt)}
         </Typography>
+        {
+          (status === 'Completed')
+          ? <Rating defaultValue={rating} readOnly={isRated} precision={0.5} sx={{mt:2, ml: 3}} onChange={rateProduct} size='small'/>
+          : <></>
+        }
       </TimelineContent>
     </TimelineItem>
   );
@@ -73,7 +93,7 @@ export default function CustomerHistoryTimeline({ORDERSLIST, FOODLIST, setRefSta
         }
       }}
     >
-      <CardHeader title="Orders in the kitchen" />
+      <CardHeader title="History" />
       <CardContent>
         <Timeline>
           {ORDERSLIST.map(order => (

@@ -48,7 +48,6 @@ export default function CustomerProductCard({ product, vendors }) {
   const [typeid] = useState(useAuth().data.user.type_id);
   const [vendor, setVendor] = useState({});
   const context = useContext(AuthContext);
-  const [ratingValue, setRatingValue] = useState(0);
   const [cboxOptions,setCboxOptions] = useState([]);
   const [orderPrice, setOrderPrice] = useState(product.price);
 
@@ -62,8 +61,8 @@ export default function CustomerProductCard({ product, vendors }) {
   };
 
   const getRating = () => {
-    if(rating.sum_rating == 0) setRatingValue(0);
-    else setRatingValue(rating.sum_rating/rating.num_rating);
+    if(rating.sum_rating == 0) return 0;
+    else return (rating.sum_rating/rating.num_rated);
   }
 
   const getVendor = id => {
@@ -89,7 +88,6 @@ export default function CustomerProductCard({ product, vendors }) {
   useEffect(() => {
     getVendor(vendor_id);
     getCboxOptions();
-    getRating();
   }, []);
 
   const onFinish = async (order) => {
@@ -191,7 +189,7 @@ export default function CustomerProductCard({ product, vendors }) {
             <Typography noWrap variant="h6">
                 {name}
             </Typography>
-            <Rating readOnly name="half-rating" value={ratingValue} precision={0.5}/>
+            <Rating readOnly name="half-rating" value={getRating()} precision={0.5}/>
         </Stack>
           <Stack direction="row" alignItems="center" justifyContent="space-between">
           <ColorPreview colors={[(isVeg ? "#237d3b" : "#7d1919")]} />

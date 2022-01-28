@@ -92,8 +92,8 @@ function OrderItem({ item, FOODLIST, setRefState, refstate, getWorkingOrders}) {
         <Typography variant="subtitle1">{getFood(food).name + " - " + fCurrency(cost)}</Typography>
         <Stack direction="row">
             {
-              getFood(food).tags.map(tag => {
-                return <Chip sx={{mt: 1, mr: 1}} label={tag.tag} size="small" variant="outlined" />
+              getFood(food).addons.map(addon => {
+                return <Chip sx={{mt: 1, mr: 1}} label={addon.addon} size="small" variant="outlined" />
               })
             }
         </Stack>

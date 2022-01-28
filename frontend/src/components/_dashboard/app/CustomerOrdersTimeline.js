@@ -71,6 +71,13 @@ function OrderItem({ item, FOODLIST, setRefState, refstate}) {
       </TimelineSeparator>
       <TimelineContent>
         <Typography variant="subtitle1">{getFood(food).name + " - " + fCurrency(cost)}</Typography>
+        <Stack direction="row">
+            {
+              getFood(food).addons.map(addon => {
+                return <Chip sx={{mt: 1, mr: 1}} label={addon.addon} size="small" variant="outlined" />
+              })
+            }
+        </Stack>
         <Typography variant="caption" sx={{ color: 'text.secondary', ml: 0.5 }}>
           {fDateTime(createdAt)}
         </Typography>
