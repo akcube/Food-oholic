@@ -14,64 +14,13 @@ import PRODUCTS from '../_mocks_/products';
 
 // ----------------------------------------------------------------------
 
-export default function ProductsPage() {
-  const [openFilter, setOpenFilter] = useState(false);
-
-  const formik = useFormik({
-    initialValues: {
-      gender: '',
-      category: '',
-      colors: '',
-      priceRange: '',
-      rating: ''
-    },
-    onSubmit: () => {
-      setOpenFilter(false);
-    }
-  });
-
-  const { resetForm, handleSubmit } = formik;
-
-  const handleOpenFilter = () => {
-    setOpenFilter(true);
-  };
-
-  const handleCloseFilter = () => {
-    setOpenFilter(false);
-  };
-
-  const handleResetFilter = () => {
-    handleSubmit();
-    resetForm();
-  };
-
+export default function EcommerceShop() {
   return (
-    <Page title="Dashboard: Food items">
+    <Page title="Dashboard: Products | Minimal-UI">
       <Container>
         <Typography variant="h4" sx={{ mb: 5 }}>
-          Food items
+          Products
         </Typography>
-
-        <Stack
-          direction="row"
-          flexWrap="wrap-reverse"
-          alignItems="center"
-          justifyContent="flex-end"
-          sx={{ mb: 5 }}
-        >
-          <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
-            <ProductFilterSidebar
-              formik={formik}
-              isOpenFilter={openFilter}
-              onResetFilter={handleResetFilter}
-              onOpenFilter={handleOpenFilter}
-              onCloseFilter={handleCloseFilter}
-            />
-            <ProductSort />
-          </Stack>
-        </Stack>
-
-        <ProductList products={PRODUCTS} />
       </Container>
     </Page>
   );

@@ -1,37 +1,25 @@
 import PropTypes from 'prop-types';
 import { Icon } from '@iconify/react';
-import { Form, FormikProvider } from 'formik';
 import closeFill from '@iconify/icons-eva/close-fill';
-import roundClearAll from '@iconify/icons-ic/round-clear-all';
 import roundFilterList from '@iconify/icons-ic/round-filter-list';
+import { fCurrency } from '../../../utils/formatNumber';
 // material
 import {
-  Box,
-  Radio,
   Stack,
   Button,
   Drawer,
-  Rating,
   Divider,
-  Checkbox,
-  FormGroup,
   IconButton,
   Typography,
-  RadioGroup,
-  FormControlLabel
 } from '@mui/material';
 //
 import Scrollbar from '../../Scrollbar';
 import ColorManyPicker from '../../ColorManyPicker';
+import { Form, Input, message, Checkbox, Slider, Select} from 'antd';
+import { useState } from 'react';
 
 // ----------------------------------------------------------------------
 
-export const SORT_BY_OPTIONS = [
-  { value: 'featured', label: 'Featured' },
-  { value: 'newest', label: 'Newest' },
-  { value: 'priceDesc', label: 'Price: High-Low' },
-  { value: 'priceAsc', label: 'Price: Low-High' }
-];
 export const FILTER_GENDER_OPTIONS = ['Men', 'Women', 'Kids'];
 export const FILTER_CATEGORY_OPTIONS = ['All', 'Shose', 'Apparel', 'Accessories'];
 export const FILTER_RATING_OPTIONS = ['up4Star', 'up3Star', 'up2Star', 'up1Star'];
@@ -50,39 +38,57 @@ export const FILTER_COLOR_OPTIONS = [
   '#94D82D',
   '#FFC107'
 ];
-
+const { Option } = Select;
 // ----------------------------------------------------------------------
-
-ShopFilterSidebar.propTypes = {
-  isOpenFilter: PropTypes.bool,
-  onResetFilter: PropTypes.func,
-  onOpenFilter: PropTypes.func,
-  onCloseFilter: PropTypes.func,
-  formik: PropTypes.object
-};
 
 export default function ShopFilterSidebar({
   isOpenFilter,
-  onResetFilter,
   onOpenFilter,
-  onCloseFilter,
-  formik
+  onCloseFilter,  
+  form,
+  filtersSet,
+  VENDORS,
+  TAGS
 }) {
-  const { values, getFieldProps, handleChange } = formik;
+
+  const [min, setMin] = useState(0);
+  const [max, setMax] = useState(500);
+
+  const vendorsCBox = VENDORS.map((vendor) => {
+    return ({
+      label: vendor.shop_name,
+      value: vendor.shop_name
+    })
+  });
+
+  const tagsSBox = TAGS.map(tag => {
+    return ({
+      label: tag,
+      value: tag
+    })
+  });
+
+  const ftypeCBox = [
+    {label: 'Vegetarian', value: 'Vegetarian'},
+    {label: 'Non-Vegetarian', value: 'Non-Vegetarian'}
+  ]
+
+  const rangeUpdate = (value) => {
+    setMax(value[1]);
+    setMin(value[0]);
+  }
 
   return (
     <>
       <Button
         disableRipple
-        color="inherit"
+        color="primary"
         endIcon={<Icon icon={roundFilterList} />}
         onClick={onOpenFilter}
       >
         Filters&nbsp;
       </Button>
 
-      <FormikProvider value={formik}>
-        <Form autoComplete="off" noValidate>
           <Drawer
             anchor="right"
             open={isOpenFilter}
@@ -97,132 +103,41 @@ export default function ShopFilterSidebar({
               justifyContent="space-between"
               sx={{ px: 1, py: 2 }}
             >
-              <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              <Typography variant="h6" sx={{ ml: 1 }}>
                 Filters
               </Typography>
               <IconButton onClick={onCloseFilter}>
                 <Icon icon={closeFill} width={20} height={20} />
               </IconButton>
             </Stack>
-
             <Divider />
 
-            <Scrollbar>
-              <Stack spacing={3} sx={{ p: 3 }}>
-                <div>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Gender
-                  </Typography>
-                  <FormGroup>
-                    {FILTER_GENDER_OPTIONS.map((item) => (
-                      <FormControlLabel
-                        key={item}
-                        control={
-                          <Checkbox
-                            {...getFieldProps('gender')}
-                            value={item}
-                            checked={values.gender.includes(item)}
-                          />
-                        }
-                        label={item}
-                      />
-                    ))}
-                  </FormGroup>
-                </div>
+            <Form form={form} name="filter-data" onFinish={filtersSet}>
 
-                <div>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Category
-                  </Typography>
-                  <RadioGroup {...getFieldProps('category')}>
-                    {FILTER_CATEGORY_OPTIONS.map((item) => (
-                      <FormControlLabel key={item} value={item} control={<Radio />} label={item} />
-                    ))}
-                  </RadioGroup>
-                </div>
+              <Typography style={{marginLeft: 20, marginTop: 20}} variant='h5'>Vendors</Typography>
+              <Form.Item name='allowed_vendors' style={{marginBottom: 10}}>
+                <Checkbox.Group options={vendorsCBox} style={{marginLeft: 15, marginRight: 20, padding: 5, fontSize: 20}}/>
+              </Form.Item>
+              <Typography style={{marginLeft: 20, marginTop: 0}} variant='h5'>Food type</Typography>
+              <Form.Item name='food_type' style={{marginBottom: 10}}>
+                <Checkbox.Group options={ftypeCBox} style={{marginLeft: 15, marginRight: 20, padding: 5, fontSize: 20}}/>
+              </Form.Item>
+              <Typography style={{marginLeft: 20, marginTop: 0}} variant='h5'>Price</Typography>
+              <Form.Item initialValue={[0, 500]} name='price_range' style={{marginBottom: 5}}>
+                <Slider style={{marginRight: 20, marginLeft: 25, marginTop: 20}} min={0} max={500} range step={1} onChange={rangeUpdate} tooltipVisible/>
+              </Form.Item>
+              <Typography style={{marginLeft: 20}} variant='subtitle2'>{ fCurrency(min) + "  -  " + fCurrency(max) }</Typography>
+              <Typography style={{marginLeft: 20, marginTop: 20}} variant='h5'>Tags</Typography>
+              <Form.Item name='food_tags' style={{marginBottom: 10, marginRight: 40}}>
+                <Checkbox.Group style={{marginLeft: 15, marginRight: 20, padding: 5, fontSize: 20}} options={tagsSBox}
+                />
+              </Form.Item>
+              <Form.Item>
+                <Button variant='contained' style={{marginLeft: 20}} onClick={() => {form.submit()}}>Apply Filters</Button>
+              </Form.Item>
+            </Form>
 
-                <div>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Colour
-                  </Typography>
-                  <ColorManyPicker
-                    name="colors"
-                    colors={FILTER_COLOR_OPTIONS}
-                    onChange={handleChange}
-                    onChecked={(color) => values.colors.includes(color)}
-                    sx={{ maxWidth: 36 * 4 }}
-                  />
-                </div>
-
-                <div>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Price
-                  </Typography>
-                  <RadioGroup {...getFieldProps('priceRange')}>
-                    {FILTER_PRICE_OPTIONS.map((item) => (
-                      <FormControlLabel
-                        key={item.value}
-                        value={item.value}
-                        control={<Radio />}
-                        label={item.label}
-                      />
-                    ))}
-                  </RadioGroup>
-                </div>
-
-                <div>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Rating
-                  </Typography>
-                  <RadioGroup {...getFieldProps('rating')}>
-                    {FILTER_RATING_OPTIONS.map((item, index) => (
-                      <FormControlLabel
-                        key={item}
-                        value={item}
-                        control={
-                          <Radio
-                            disableRipple
-                            color="default"
-                            icon={<Rating readOnly value={4 - index} />}
-                            checkedIcon={<Rating readOnly value={4 - index} />}
-                          />
-                        }
-                        label="& Up"
-                        sx={{
-                          my: 0.5,
-                          borderRadius: 1,
-                          '& > :first-of-type': { py: 0.5 },
-                          '&:hover': {
-                            opacity: 0.48,
-                            '& > *': { bgcolor: 'transparent' }
-                          },
-                          ...(values.rating.includes(item) && {
-                            bgcolor: 'background.neutral'
-                          })
-                        }}
-                      />
-                    ))}
-                  </RadioGroup>
-                </div>
-              </Stack>
-            </Scrollbar>
-
-            <Box sx={{ p: 3 }}>
-              <Button
-                fullWidth
-                size="large"
-                type="submit"
-                color="inherit"
-                variant="outlined"
-                onClick={onResetFilter}
-                startIcon={<Icon icon={roundClearAll} />}
-              >
-                Clear All
-              </Button>
-            </Box>
           </Drawer>
-        </Form>
-      </FormikProvider>
     </>
   );
 }

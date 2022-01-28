@@ -36,7 +36,7 @@ VendorProductCard.propTypes = {
 
 export default function VendorProductCard({ product }) {
   const {name, price, isVeg, image, addons, tags, vendor, rating} = product;
-  const [form] = Form.useForm()
+  const [form] = Form.useForm();
   const [open, setOpen] = useState(false);
   const [imagedata, setImageData] = useState(product.image);
   const [typeid] = useState(useAuth().data.user.type_id);
@@ -141,7 +141,7 @@ export default function VendorProductCard({ product }) {
                   </Space>
                 ))}
                 <Form.Item>
-                  <Button type="dashed" onClick={() => add()} block startIcon={<PlusOutlined/>}>
+                  <Button type="dashed" onClick={() => add()} startIcon={<PlusOutlined/>}>
                     Add Addon
                   </Button>
                 </Form.Item>
@@ -164,7 +164,7 @@ export default function VendorProductCard({ product }) {
                   </Space>
                 ))}
                 <Form.Item>
-                  <Button type="dashed" onClick={() => add()} block startIcon={<PlusOutlined/>}>
+                  <Button type="dashed" onClick={() => add()} startIcon={<PlusOutlined/>}>
                     Add Tag
                   </Button>
                 </Form.Item>

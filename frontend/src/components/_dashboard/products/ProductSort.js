@@ -3,60 +3,51 @@ import { useState } from 'react';
 import chevronUpFill from '@iconify/icons-eva/chevron-up-fill';
 import chevronDownFill from '@iconify/icons-eva/chevron-down-fill';
 // material
-import { Menu, Button, MenuItem, Typography } from '@mui/material';
+import { Button, MenuItem, Typography } from '@mui/material';
+import { Menu, Dropdown } from 'antd';
+import { DownOutlined } from '@ant-design/icons';
 
 // ----------------------------------------------------------------------
 
 const SORT_BY_OPTIONS = [
-  { value: 'featured', label: 'Featured' },
-  { value: 'newest', label: 'Newest' },
-  { value: 'priceDesc', label: 'Price: High-Low' },
-  { value: 'priceAsc', label: 'Price: Low-High' }
+  { value: 'ratingDSC', label: 'Rating: High-Low' },
+  { value: 'ratingASC', label: 'Rating: Low-High' },
+  { value: 'priceDSC', label: 'Price: High-Low' },
+  { value: 'priceASC', label: 'Price: Low-High' }
 ];
 
-export default function ShopProductSort() {
+export default function ShopProductSort({sortingOption, setSortingOption}) {
   const [open, setOpen] = useState(null);
 
-  const handleOpen = (event) => {
-    setOpen(event.currentTarget);
-  };
+  const menuClicked = (item) => {
+    setSortingOption(item.key);
+  }
 
-  const handleClose = () => {
-    setOpen(null);
-  };
+  const getLabel = value => {
+    for(var v in SORT_BY_OPTIONS){
+      if(SORT_BY_OPTIONS[v].value == value) return SORT_BY_OPTIONS[v].label;
+    }
+  }
+
+  const menu = (
+    <Menu selectedKeys={[getLabel(sortingOption)]} onClick={menuClicked}>
+        {SORT_BY_OPTIONS.map((option) => (
+          <Menu.Item size='large' key={getLabel(option.value)}>
+            {option.label}
+          </Menu.Item>
+        ))}
+      </Menu>
+  );
 
   return (
     <>
-      <Button
-        color="inherit"
-        disableRipple
-        onClick={handleOpen}
-        endIcon={<Icon icon={open ? chevronUpFill : chevronDownFill} />}
-      >
-        Sort By:&nbsp;
-        <Typography component="span" variant="subtitle2" sx={{ color: 'text.secondary' }}>
-          Newest
-        </Typography>
-      </Button>
-      <Menu
-        keepMounted
-        anchorEl={open}
-        open={Boolean(open)}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        {SORT_BY_OPTIONS.map((option) => (
-          <MenuItem
-            key={option.value}
-            selected={option.value === 'newest'}
-            onClick={handleClose}
-            sx={{ typography: 'body2' }}
-          >
-            {option.label}
-          </MenuItem>
-        ))}
-      </Menu>
+        <Dropdown overlay={menu}>
+          <a className="ant-dropdown-link" onClick={e => e.preventDefault()}>
+          <Typography component="span" variant="subtitle2" sx={{ color: '#00AB55' }}>
+            {getLabel(sortingOption)}
+          </Typography> <DownOutlined />
+          </a>
+        </Dropdown>      
     </>
   );
 }
