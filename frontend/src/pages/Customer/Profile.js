@@ -1,17 +1,15 @@
 // material
-import { Grid, Container, Stack, Typography, Box } from '@mui/material';
+import { Container, Stack, Typography, Box } from '@mui/material';
 // components
 import Page from '../../components/Page';
-import {Form, Input, Upload, Button, Select, message} from 'antd';
-import { PhoneOutlined , UserOutlined, LockOutlined, InboxOutlined, ShopOutlined } from '@ant-design/icons';
+import {Form, Input, Button, Select, message} from 'antd';
+import { PhoneOutlined , UserOutlined, LockOutlined } from '@ant-design/icons';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../services/authContext';
 import { GetUser, UpdateUser } from '../../services/user.service';
-import { GetAllVendors } from '../../services/vendor.service';
 import useAsyncEffect from "use-async-effect"
-import { GetCustomer, GetCustomerByEmail } from '../../services/customer.service';
-import moment from "moment";
+import { GetCustomer } from '../../services/customer.service';
 
 export default function CustomerProfile() {
 
@@ -111,7 +109,7 @@ export default function CustomerProfile() {
                 </Box>
                 <Box sx={{ borderTop: 1, borderColor: 'divider' }}>
                 <Box sx={{mt : 3, display: 'flex', flexDirection: 'row', height: 55}}>
-                    <Form.Item style={{width: '100%', marginRight: 10}} name='age' initialValue={(customer.age == undefined) ? 0 : customer.age.toString()}
+                    <Form.Item style={{width: '100%', marginRight: 10}} name='age' initialValue={(customer.age === undefined) ? 0 : customer.age.toString()}
                     rules={[
                         {
                         required: true,

@@ -7,7 +7,6 @@ import history from "./services/history"
 import ThemeConfig from './theme'
 import GlobalStyles from './theme/globalStyles'
 import DashboardLayout from './layouts/dashboard';
-import Products from './pages/Products';
 import Page404 from "./pages/Page404"
 
 import ProtectedRoute from "./SpecialRoutes/ProtectedRoute"

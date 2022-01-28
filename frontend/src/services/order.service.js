@@ -31,7 +31,7 @@ const nxt = {
 
 export const ProgressOrder = async (authContext, order) => {
     if(badToken(authContext)) return;
-    if(order.status == 'Completed' || order.status == 'Rejected') return {success: false};
+    if(order.status === 'Completed' || order.status === 'Rejected') return {success: false};
     try{
         await axios.post("/order/update", {id: order._id, status: nxt[order.status]});
         return {success: true};

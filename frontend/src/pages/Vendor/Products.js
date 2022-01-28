@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 // material
 import { Container, Stack, Typography } from '@mui/material';
 // components               
@@ -21,11 +21,6 @@ import useAsyncEffect from "use-async-effect"
 const { Dragger } = Upload;
 
 // ----------------------------------------------------------------------
-
-function useForceUpdate(){
-  const [value, setValue] = useState(0); // integer state
-  return () => setValue(value => value + 1); // update the state to force render
-}
 
 const VendorProducts = () => {
 
@@ -68,8 +63,6 @@ const VendorProducts = () => {
     );
   }
 
-  const forceUpdate = useForceUpdate();
-
   const onFinish = async (values) => {
     values.image = imagedata;
     values.vendor = typeid;
@@ -77,7 +70,6 @@ const VendorProducts = () => {
     if(res.success) message.success("Product added successfully");
     else message.error("Something went wrong. Try again.")
     window.location.reload();
-    forceUpdate();
     handleClose();
   }
 

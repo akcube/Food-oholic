@@ -1,16 +1,15 @@
 // material
-import { Grid, Container, Stack, Typography, Box } from '@mui/material';
+import { Container, Stack, Typography, Box } from '@mui/material';
 // components
 import Page from '../../components/Page';
-import {Form, Input, Upload, Button, TimePicker, message} from 'antd';
-import { PhoneOutlined , UserOutlined, LockOutlined, InboxOutlined, ShopOutlined } from '@ant-design/icons';
+import {Form, Input, Button, TimePicker, message} from 'antd';
+import { PhoneOutlined , UserOutlined, LockOutlined, ShopOutlined } from '@ant-design/icons';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../services/authContext';
 import { GetUser, UpdateUser } from '../../services/user.service';
 import { GetAllVendors } from '../../services/vendor.service';
 import useAsyncEffect from "use-async-effect"
-import { GetCustomer, GetCustomerByEmail } from '../../services/customer.service';
 import moment from "moment";
 
 export default function VendorProfile() {
@@ -21,7 +20,7 @@ export default function VendorProfile() {
 
     const getVendor = (vs) => {
         for(var v in vs){
-            if(vs[v]._id == context.data.user.type_id) return vs[v];
+            if(vs[v]._id === context.data.user.type_id) return vs[v];
         }
     }
 

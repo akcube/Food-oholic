@@ -15,7 +15,7 @@ export const GetCustomer = async (authContext, cid) => {
 export const FavoriteItem = async (authContext, farr) => {
     if(badToken(authContext)) return;
     try{
-        let res = await axios.post("/customer/favorite", {id: authContext.data.user.type_id, favorites: farr});
+        await axios.post("/customer/favorite", {id: authContext.data.user.type_id, favorites: farr});
         return {success: true};
     }
     catch(e){
