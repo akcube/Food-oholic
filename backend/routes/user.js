@@ -27,7 +27,6 @@ userRouter.post('/register', async (req, res) => {
 		email : req.body.email,
 		hashed_password : hashed_password,
 		user_type : req.body.user_type,
-		image : req.body.image
 	});
 
 	const userType = (req.body.user_type === 0) 

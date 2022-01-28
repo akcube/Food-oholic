@@ -25,7 +25,6 @@ class SignUpPage extends React.Component {
   constructor(props){
     super(props);
     this.Copyright = this.Copyright.bind(this);
-    this.normFile = this.normFile.bind(this);
     this.TabPanel = this.TabPanel.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.onFinish = this.onFinish.bind(this);
@@ -44,16 +43,6 @@ class SignUpPage extends React.Component {
       </Typography>
     );
   }
-
-  normFile = (e) => {
-    console.log('Upload event:', e);
-  
-    if (Array.isArray(e)) {
-      return e;
-    }
-  
-    return e && e.fileList;
-  };
 
   handleChange = (event, newValue) => {
     this.setState({ user_type : 1-this.state.user_type });
@@ -163,19 +152,19 @@ class SignUpPage extends React.Component {
           <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
           <Box
             sx={{
-              marginTop: 2,
+              marginTop: 6,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
             }}
           >
-            <Avatar style={{width: 55, height: 55, marginBottom: 15}} sx={{ m: 1, bgcolor: 'secondary.main' }}>
-              <LockOutlinedIcon style={{width: 25, height: 25}}/>
+            <Avatar style={{width: 75, height: 75, marginBottom: 15}} sx={{ m: 1, bgcolor: 'secondary.main' }}>
+              <LockOutlinedIcon style={{width: 45, height: 45}}/>
             </Avatar>
-            <Typography component="h1" variant="h4">
+            <Typography component="h1" variant="h3">
               Sign up
             </Typography>
-            <Box sx={{ mt: 1, alignItems: 'center'}}>
+            <Box sx={{ mt: 6, alignItems: 'center'}}>
               <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs style={{width: 600}} value={this.state.user_type} onChange={this.handleChange}>
                   <Tab label="Student / Customer" id={"0"}/>
@@ -252,17 +241,6 @@ class SignUpPage extends React.Component {
                       <Input style={{height: 55}} placeholder="Password" type="password" prefix={<LockOutlined style={{marginRight: 8}} className="site-form-item-icon" />}/>
                       </Form.Item>
                   </Box>
-                  <Form.Item>
-                    <Form.Item name="image" valuePropName="fileList" getValueFromEvent={this.normFile} noStyle>
-                      <Upload.Dragger name="files">
-                        <p className="ant-upload-drag-icon">
-                          <InboxOutlined />
-                        </p>
-                        <p className="ant-upload-text">Upload a profile picture so people recognize you better!</p>
-                        <p className="ant-upload-hint">Click or drag file to this area to upload</p>
-                      </Upload.Dragger>
-                    </Form.Item>
-                  </Form.Item>
                   <Box sx={{ borderTop: 1, borderColor: 'divider' }}>
                     <this.TabPanel/>
                   </Box>
