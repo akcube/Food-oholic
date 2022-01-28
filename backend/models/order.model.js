@@ -17,9 +17,10 @@ const orderSchema = new mongoose.Schema({
 		enum: ['Placed', 'Accepted', 'Cooking', 'Ready for pickup', 'Completed', 'Rejected']
 	},
 	cost: { type: Number, required: true },
+	addons: [{type: String}],
 	isRated: { type: Boolean, default: false },
-	timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
-});
+	rating: { type: Number, default: 0},
+}, { timestamps: true });
 
 orderSchema.plugin(validateInteger);
 const Order = mongoose.model('Order', orderSchema);

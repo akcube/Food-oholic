@@ -18,7 +18,7 @@ userRouter.post('/register', async (req, res) => {
 		const salt = await bcrypt.genSalt(saltRounds);
 		hashed_password = await bcrypt.hash(req.body.password, salt);	
 	}
-	catch(e){ return res; }
+	catch(e){ return res.status(StatusCodes.INTERNAL_SERVER_ERROR); }
 
 	const user = new User({
 		first_name : req.body.first_name,
@@ -27,7 +27,6 @@ userRouter.post('/register', async (req, res) => {
 		email : req.body.email,
 		hashed_password : hashed_password,
 		user_type : req.body.user_type,
-		image : req.body.image
 	});
 
 	const userType = (req.body.user_type === 0) 
@@ -45,9 +44,6 @@ userRouter.post('/register', async (req, res) => {
 			}
 		});
 
-	Log.debug(user);
-	Log.debug(userType);
-
 	try{ await user.save(); }
 	catch(e){ Log.error(e); return res.status(StatusCodes.BAD_REQUEST).json({error: ReasonPhrases.BAD_REQUEST}); }
 
@@ -56,13 +52,16 @@ userRouter.post('/register', async (req, res) => {
 	catch(e){
 		Log.error(e);
 		await User.deleteOne({email : req.body.email});
-		return res.status(StatusCodes.BAD_REQUEST).json({error: ReasonPhrases.BAD_REQUEST});;
+		return res.status(StatusCodes.BAD_REQUEST).json({error: ReasonPhrases.BAD_REQUEST});
 	}
 	
 	const payload = {
 		id: user.id,
+		type_id: userType.id,
 		email: user.email,
-		user_type: user.user_type
+		user_type: user.user_type,
+		first_name: user.first_name,
+		last_name: user.last_name
 	};
 	const signedToken = jwt.sign(payload, secret_key, {expiresIn : 7200});
 	return res.status(StatusCodes.OK).json({success: true, token: signedToken});
@@ -74,14 +73,80 @@ userRouter.post('/login', async (req, res) => {
 	if(!valid){ 
 		return res.status(StatusCodes.UNAUTHORIZED).json({error: ReasonPhrases.UNAUTHORIZED, success: false})
 	}
+	const user_type = (user.user_type === 0)
+	? await Customer.findOne({ email: req.body.email })
+	: await Vendor.findOne({ email: req.body.email });
 
 	const payload = {
 		id: user.id,
+		type_id: user_type.id,
 		email: user.email,
-		user_type: user.user_type
+		user_type: user.user_type,
+		first_name: user.first_name,
+		last_name: user.last_name
 	};
+
 	const signedToken = jwt.sign(payload, secret_key, {expiresIn : 7200});
 	return res.status(StatusCodes.OK).json({success: true, token: signedToken});
+});
+
+userRouter.post('/walletAdd', async(req, res) => {
+	const customer = await Customer.findOne({ email: req.body.email });
+	let current_amount = customer.wallet;
+	current_amount += req.body.amount;
+	try{
+		await Customer.updateOne({email: customer.email}, {wallet: current_amount});
+	}
+	catch(e) {return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: ReasonPhrases.INTERNAL_SERVER_ERROR})}
+	return res.status(StatusCodes.OK).json({amount: current_amount});
+});
+
+userRouter.post('/walletRefund', async(req, res) => {
+	const customer = await Customer.findById(req.body.id);
+	let current_amount = customer.wallet;
+	current_amount += req.body.amount;
+	try{
+		await Customer.updateOne({email: customer.email}, {wallet: current_amount});
+	}
+	catch(e) {return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: ReasonPhrases.INTERNAL_SERVER_ERROR})}
+	return res.status(StatusCodes.OK).json({amount: current_amount});
+});
+
+userRouter.get('/', async (req, res) => {
+    if(req.query.id === undefined) 
+        return res.status(StatusCodes.BAD_REQUEST).send(ReasonPhrases.BAD_REQUEST);
+    try{
+        let docs = await User.findById(req.query.id);
+        return res.status(StatusCodes.OK).json(docs);
+    }
+    catch(e){
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(ReasonPhrases.INTERNAL_SERVER_ERROR);
+    }    
+});
+
+userRouter.post('/update', async(req, res) => {
+	Log.debug(req.body);
+
+	let hashed_password;
+	try{
+		const saltRounds = 10;
+		const salt = await bcrypt.genSalt(saltRounds);
+		hashed_password = await bcrypt.hash(req.body.password, salt);	
+	}
+	catch(e){ return res.status(StatusCodes.INTERNAL_SERVER_ERROR); }
+
+	let upd = req.body;
+	upd.hashed_password = hashed_password;
+
+	try{
+		await User.updateOne({email: req.body.email}, upd);
+		if(upd.user_type === 0)
+			await Customer.updateOne({email: req.body.email}, upd);
+		else
+			await Vendor.updateOne({email: req.body.email}, upd);
+	}
+	catch(e) {return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: ReasonPhrases.INTERNAL_SERVER_ERROR})}
+	return res.status(StatusCodes.OK).send(ReasonPhrases.OK);
 });
 
 export default userRouter
