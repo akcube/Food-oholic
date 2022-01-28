@@ -141,7 +141,10 @@ userRouter.post('/update', async(req, res) => {
 
 	try{
 		await User.updateOne({email: req.body.email}, upd);
-		await Vendor.updateOne({email: req.body.email}, upd);
+		if(upd.user_type === 0)
+			await Customer.updateOne({email: req.body.email}, upd);
+		else
+			await Vendor.updateOne({email: req.body.email}, upd);
 	}
 	catch(e) {return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: ReasonPhrases.INTERNAL_SERVER_ERROR})}
 	return res.status(StatusCodes.OK).send(ReasonPhrases.OK);
