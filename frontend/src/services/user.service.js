@@ -26,5 +26,17 @@ const AddToWallet = async (authContext, amt) => {
     }
 }
 
+const RefundWallet = async (authContext, amt, customerid) => {
+    if(badToken(authContext)) return;
+    try{
+        let res = await axios.post("/user/walletRefund", {id: customerid, amount: amt});
+        return {success: true};
+    }
+    catch(e){
+        return {success: false, message: e.response.data.error};
+    }
+}
+
 export const registerUser = RegisterUser
 export const addToWallet = AddToWallet
+export const refundWallet = RefundWallet;

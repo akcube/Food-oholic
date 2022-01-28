@@ -105,4 +105,15 @@ userRouter.post('/walletAdd', async(req, res) => {
 	return res.status(StatusCodes.OK).json({amount: current_amount});
 });
 
+userRouter.post('/walletRefund', async(req, res) => {
+	const customer = await Customer.findById(req.body.id);
+	let current_amount = customer.wallet;
+	current_amount += req.body.amount;
+	try{
+		await Customer.updateOne({email: customer.email}, {wallet: current_amount});
+	}
+	catch(e) {return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: ReasonPhrases.INTERNAL_SERVER_ERROR})}
+	return res.status(StatusCodes.OK).json({amount: current_amount});
+});
+
 export default userRouter

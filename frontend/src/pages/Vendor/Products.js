@@ -38,7 +38,6 @@ const VendorProducts = () => {
   
   useAsyncEffect(async () => {
     let res = await GetProductsByVendor(context, context.data.user.type_id);
-    console.log(res);
     for (var p of res){
       p.price = p.price.toString();
       for (var a of p.addons){
