@@ -15,6 +15,29 @@ const RegisterUser = async (user, authContext) => {
     authContext.login(User);
 }
 
+
+export const UpdateUser = async (authContext, user) => {
+    if(badToken(authContext)) return;
+    try{
+        let res = await axios.post("/user/update", user);
+        return {success: true};
+    }
+    catch(e){
+        return {success: false, message: e.response.data.error};
+    }
+}
+
+export const GetUser = async (authContext) => {
+    if(badToken(authContext)) return;
+    try{
+        let res = await axios.get("/user/", {params: {id: authContext.data.user.id}});
+        return {success: true, data: res.data};
+    }
+    catch(e){
+        return {success: false};
+    }
+}
+
 const AddToWallet = async (authContext, amt) => {
     if(badToken(authContext)) return;
     try{

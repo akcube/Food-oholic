@@ -18,7 +18,7 @@ userRouter.post('/register', async (req, res) => {
 		const salt = await bcrypt.genSalt(saltRounds);
 		hashed_password = await bcrypt.hash(req.body.password, salt);	
 	}
-	catch(e){ return res; }
+	catch(e){ return res.status(StatusCodes.INTERNAL_SERVER_ERROR); }
 
 	const user = new User({
 		first_name : req.body.first_name,
@@ -44,9 +44,6 @@ userRouter.post('/register', async (req, res) => {
 				close: new Date(req.body.close_time)
 			}
 		});
-
-	Log.debug(user);
-	Log.debug(userType);
 
 	try{ await user.save(); }
 	catch(e){ Log.error(e); return res.status(StatusCodes.BAD_REQUEST).json({error: ReasonPhrases.BAD_REQUEST}); }
@@ -114,6 +111,40 @@ userRouter.post('/walletRefund', async(req, res) => {
 	}
 	catch(e) {return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: ReasonPhrases.INTERNAL_SERVER_ERROR})}
 	return res.status(StatusCodes.OK).json({amount: current_amount});
+});
+
+userRouter.get('/', async (req, res) => {
+    if(req.query.id === undefined) 
+        return res.status(StatusCodes.BAD_REQUEST).send(ReasonPhrases.BAD_REQUEST);
+    try{
+        let docs = await User.findById(req.query.id);
+        return res.status(StatusCodes.OK).json(docs);
+    }
+    catch(e){
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(ReasonPhrases.INTERNAL_SERVER_ERROR);
+    }    
+});
+
+userRouter.post('/update', async(req, res) => {
+	Log.debug(req.body);
+
+	let hashed_password;
+	try{
+		const saltRounds = 10;
+		const salt = await bcrypt.genSalt(saltRounds);
+		hashed_password = await bcrypt.hash(req.body.password, salt);	
+	}
+	catch(e){ return res.status(StatusCodes.INTERNAL_SERVER_ERROR); }
+
+	let upd = req.body;
+	upd.hashed_password = hashed_password;
+
+	try{
+		await User.updateOne({email: req.body.email}, upd);
+		await Vendor.updateOne({email: req.body.email}, upd);
+	}
+	catch(e) {return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: ReasonPhrases.INTERNAL_SERVER_ERROR})}
+	return res.status(StatusCodes.OK).send(ReasonPhrases.OK);
 });
 
 export default userRouter
