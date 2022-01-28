@@ -14,17 +14,16 @@ import { fDateTime } from '../../../utils/formatTime';
 import { fCurrency } from '../../../utils/formatNumber';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { ProgressOrder, RejectOrder } from '../../../services/order.service';
+import { PickupOrder } from '../../../services/order.service';
 import { useContext } from 'react';
 import { AuthContext } from '../../../services/authContext';
-import { refundWallet } from '../../../services/user.service';
 import { message } from 'antd'
 
 // ----------------------------------------------------------------------
 
 // ----------------------------------------------------------------------
 
-function OrderItem({ item, FOODLIST, setRefState, refstate, getWorkingOrders}) {
+function OrderItem({ item, FOODLIST, setRefState, refstate}) {
   const { createdAt, status, food, quantity, addons, cost, customer } = item;
   const context = useContext(AuthContext);
 
@@ -34,38 +33,21 @@ function OrderItem({ item, FOODLIST, setRefState, refstate, getWorkingOrders}) {
     return {name: "Doesn't exist", addons: [], price: 0, tags: []};
   }
 
-  const progressState = async () => {
-
-    if(getWorkingOrders() >= 10 && status == 'Placed'){
-      message.error("Can only work on at max 10 orders at once");
-      return;
-    }
-
-    await ProgressOrder(context, item);
-    setRefState(refstate^1);
-  }
-
-  const deleteItem = async () => {
-    let res = await refundWallet(context, cost, customer);
-    if(res.success == false){
-      message.error(res.message);
-      return;
-    }
-    await RejectOrder(context, item);
+  const pickup = async () => {
+    let res = await PickupOrder(context, item);
+    if(res.success) message.success("Order picked up successfully");
+    else message.error("Server error");
     setRefState(refstate^1);
   }
 
   const ProgressOrderStack = () => {
     return (
       <Stack direction="row">
-        <Button disableRipple onClick={progressState} endIcon={<NavigateNextIcon/>}>
-          Progress Order
-        </Button>
         {
-          (status === 'Placed')
-          ? <IconButton color="error" aria-label="upload picture" component="span" onClick={deleteItem}>
-              <DeleteIcon/>
-            </IconButton>
+          (status === 'Ready for pickup')
+          ? <Button disableRipple onClick={pickup} endIcon={<NavigateNextIcon/>}>
+              Pickup Order
+            </Button>
           : <></>
         }
       </Stack>
@@ -82,7 +64,6 @@ function OrderItem({ item, FOODLIST, setRefState, refstate, getWorkingOrders}) {
               (status === 'Accepted' && 'primary.main') ||
               (status === 'Cooking' && 'warning.main') ||
               (status === 'Ready for pickup' && 'success.main') ||
-              (status === 'Completed' && 'accepted.main') ||
               'error.main'
           }}
         />
@@ -90,13 +71,6 @@ function OrderItem({ item, FOODLIST, setRefState, refstate, getWorkingOrders}) {
       </TimelineSeparator>
       <TimelineContent>
         <Typography variant="subtitle1">{getFood(food).name + " - " + fCurrency(cost)}</Typography>
-        <Stack direction="row">
-            {
-              getFood(food).tags.map(tag => {
-                return <Chip sx={{mt: 1, mr: 1}} label={tag.tag} size="small" variant="outlined" />
-              })
-            }
-        </Stack>
         <Typography variant="caption" sx={{ color: 'text.secondary', ml: 0.5 }}>
           {fDateTime(createdAt)}
         </Typography>
@@ -113,15 +87,7 @@ function uuid() {
   });
 }
 
-export default function CurrentOrdersTimeline({ORDERSLIST, FOODLIST, setRefState, refstate}) {
-
-  const getWorkingOrders = () => {
-    let ct = 0;
-    for(var v in ORDERSLIST)
-      if(ORDERSLIST[v].status == 'Accepted' || ORDERSLIST[v].status == 'Cooking') ct++;
-    console.log(ct);
-    return ct;
-  }
+export default function CustomerOrdersTimeline({ORDERSLIST, FOODLIST, setRefState, refstate}) {
 
   return (
     <Card
@@ -131,12 +97,11 @@ export default function CurrentOrdersTimeline({ORDERSLIST, FOODLIST, setRefState
         }
       }}
     >
-      <CardHeader title="Current Orders" />
+      <CardHeader title="Orders in the kitchen" />
       <CardContent>
         <Timeline>
           {ORDERSLIST.map(order => (
-            <OrderItem key={uuid()} item={order} FOODLIST={FOODLIST} setRefState={setRefState} refstate={refstate}
-              getWorkingOrders={getWorkingOrders}/>
+            <OrderItem key={uuid()} item={order} FOODLIST={FOODLIST} setRefState={setRefState} refstate={refstate}/>
           ))}
         </Timeline>
       </CardContent>

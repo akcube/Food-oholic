@@ -19,25 +19,6 @@ import { Form, Input, message, Checkbox, Slider, Select} from 'antd';
 import { useState } from 'react';
 
 // ----------------------------------------------------------------------
-
-export const FILTER_GENDER_OPTIONS = ['Men', 'Women', 'Kids'];
-export const FILTER_CATEGORY_OPTIONS = ['All', 'Shose', 'Apparel', 'Accessories'];
-export const FILTER_RATING_OPTIONS = ['up4Star', 'up3Star', 'up2Star', 'up1Star'];
-export const FILTER_PRICE_OPTIONS = [
-  { value: 'below', label: 'Below $25' },
-  { value: 'between', label: 'Between $25 - $75' },
-  { value: 'above', label: 'Above $75' }
-];
-export const FILTER_COLOR_OPTIONS = [
-  '#00AB55',
-  '#000000',
-  '#FFFFFF',
-  '#FFC0CB',
-  '#FF4842',
-  '#1890FF',
-  '#94D82D',
-  '#FFC107'
-];
 const { Option } = Select;
 // ----------------------------------------------------------------------
 
@@ -115,11 +96,11 @@ export default function ShopFilterSidebar({
             <Form form={form} name="filter-data" onFinish={filtersSet}>
 
               <Typography style={{marginLeft: 20, marginTop: 20}} variant='h5'>Vendors</Typography>
-              <Form.Item name='allowed_vendors' style={{marginBottom: 10}}>
+              <Form.Item initialValue={[]} name='allowed_vendors' style={{marginBottom: 10}}>
                 <Checkbox.Group options={vendorsCBox} style={{marginLeft: 15, marginRight: 20, padding: 5, fontSize: 20}}/>
               </Form.Item>
               <Typography style={{marginLeft: 20, marginTop: 0}} variant='h5'>Food type</Typography>
-              <Form.Item name='food_type' style={{marginBottom: 10}}>
+              <Form.Item initialValue={[]} name='food_type' style={{marginBottom: 10}}>
                 <Checkbox.Group options={ftypeCBox} style={{marginLeft: 15, marginRight: 20, padding: 5, fontSize: 20}}/>
               </Form.Item>
               <Typography style={{marginLeft: 20, marginTop: 0}} variant='h5'>Price</Typography>
@@ -128,7 +109,7 @@ export default function ShopFilterSidebar({
               </Form.Item>
               <Typography style={{marginLeft: 20}} variant='subtitle2'>{ fCurrency(min) + "  -  " + fCurrency(max) }</Typography>
               <Typography style={{marginLeft: 20, marginTop: 20}} variant='h5'>Tags</Typography>
-              <Form.Item name='food_tags' style={{marginBottom: 10, marginRight: 40}}>
+              <Form.Item initialValue={[]} name='food_tags' style={{marginBottom: 10, marginRight: 40}}>
                 <Checkbox.Group style={{marginLeft: 15, marginRight: 20, padding: 5, fontSize: 20}} options={tagsSBox}
                 />
               </Form.Item>
@@ -136,7 +117,6 @@ export default function ShopFilterSidebar({
                 <Button variant='contained' style={{marginLeft: 20}} onClick={() => {form.submit()}}>Apply Filters</Button>
               </Form.Item>
             </Form>
-
           </Drawer>
     </>
   );

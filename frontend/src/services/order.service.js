@@ -28,6 +28,17 @@ export const ProgressOrder = async (authContext, order) => {
     catch(e){ return {success: false}; }
 }
 
+export const PickupOrder = async (authContext, order) => {
+    if(badToken(authContext)) return;
+    console.log(order.status);
+    if(order.status !== 'Ready for pickup') return {success: false};
+    try{
+        await axios.post("/order/update", {id: order._id, status: 'Completed'});
+        return {success: true};
+    }
+    catch(e){ return {success: false}; }
+}
+
 export const RejectOrder = async (authContext, order) => {
     if(badToken(authContext)) return;
     try{

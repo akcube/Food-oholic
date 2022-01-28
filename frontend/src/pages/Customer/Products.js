@@ -104,8 +104,8 @@ const CustomerProducts = () => {
     }
 
     const filtersSet = val => {
-      console.log(val);
       var filteredProducts = [];
+      console.log(val);
       for(var v in ALLPRODUCTS){
         if(!val.allowed_vendors.includes(getVendor(ALLPRODUCTS[v].vendor).shop_name)) continue;
         if(ALLPRODUCTS[v].isVeg && !val.food_type.includes('Vegetarian')) continue;
@@ -121,6 +121,7 @@ const CustomerProducts = () => {
       else if(sortingOption == 'ratingASC') filteredProducts.sort(ascRating);
       else if(sortingOption == 'priceDSC') filteredProducts.sort(dscPrice);
       else if(sortingOption == 'priceASC') filteredProducts.sort(ascPrice);
+      console.log(filteredProducts);
       setProducts(filteredProducts);
     }
     
@@ -205,9 +206,6 @@ const CustomerProducts = () => {
                   >
                     {OPTIONS[sortingOption]}&nbsp;
                   </Button>
-                  {/* <Typography component="span" variant="subtitle2" sx={{ color: '#00AB55', mt: 1 }}>
-                    {OPTIONS[sortingOption]}
-                  </Typography>  */}
                   <DownOutlined />
                   </a>
                 </Dropdown>
