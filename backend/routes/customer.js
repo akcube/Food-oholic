@@ -18,4 +18,14 @@ customerRouter.get('/', async (req, res) => {
     }    
 });
 
+customerRouter.post('/favorite', async(req, res) => {
+	const customer = await Customer.findById(req.body.id);
+    Log.debug(req.body.favorites);
+	try{
+		await Customer.updateOne({email: customer.email}, {favorites: req.body.favorites});
+	}
+	catch(e) {return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: ReasonPhrases.INTERNAL_SERVER_ERROR})}
+	return res.status(StatusCodes.OK).send(ReasonPhrases.OK);
+});
+
 export default customerRouter;

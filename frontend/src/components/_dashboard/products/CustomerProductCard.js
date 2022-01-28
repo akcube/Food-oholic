@@ -24,6 +24,10 @@ import { AddOrder } from '../../../services/order.service';
 import { GetCustomer } from '../../../services/customer.service';
 import { addToWallet } from '../../../services/user.service';
 import Chip from '@mui/material/Chip';
+import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import { IconButton } from '@mui/material';
+import { FavoriteItem } from '../../../services/customer.service'
 // ----------------------------------------------------------------------
 
 const ProductImgStyle = styled('img')({
@@ -40,7 +44,7 @@ CustomerProductCard.propTypes = {
   product: PropTypes.object
 };
 
-export default function CustomerProductCard({ product, vendors }) {
+export default function CustomerProductCard({ product, vendors, favorites, setFavorites }) {
   const {name, price, isVeg, image, addons, tags, rating, _id} = product;
   const vendor_id = product.vendor;
   const [form] = Form.useForm()
@@ -50,6 +54,8 @@ export default function CustomerProductCard({ product, vendors }) {
   const context = useContext(AuthContext);
   const [cboxOptions,setCboxOptions] = useState([]);
   const [orderPrice, setOrderPrice] = useState(product.price);
+  const [fillHeart, setFillHeart] = useState(0);
+  const user = useAuth().data.user;
 
   const handleOpen = () => {
     setOrderPrice(fCurrency(price));
@@ -88,6 +94,7 @@ export default function CustomerProductCard({ product, vendors }) {
   useEffect(() => {
     getVendor(vendor_id);
     getCboxOptions();
+    if(favorites.includes(_id)) setFillHeart(1);
   }, []);
 
   const onFinish = async (order) => {
@@ -127,6 +134,15 @@ export default function CustomerProductCard({ product, vendors }) {
         if(addons[aon].addon == allFields[1].value[v]) new_price += Number(addons[aon].price);
     new_price *= Number(allFields[0].value);
     setOrderPrice(fCurrency(new_price));
+  }
+
+  const favoriteItem = async () => {
+    let newf = favorites;
+    if(newf.includes(_id)) newf = newf.filter(fav => fav !== _id);
+    else newf.push(_id);
+    setFavorites(newf);
+    setFillHeart(fillHeart^1);
+    FavoriteItem(context, newf);
   }
 
   return (
@@ -178,11 +194,18 @@ export default function CustomerProductCard({ product, vendors }) {
         >
 
         <Stack direction="row">
+          <>
             {
               tags.map(tag => {
                 return <Chip sx={{mr: 1}} label={tag.tag} size="small" variant="outlined" />
               })
             }
+            <IconButton color="primary" size='small' style={{marginLeft: 'auto', color: 'red'}} onClick={favoriteItem} component="span">
+              {
+                (fillHeart===1) ? <FavoriteIcon /> : <FavoriteBorderOutlinedIcon />
+              }
+            </IconButton>
+          </>
         </Stack>
 
         <Stack direction="row" alignItems="center" justifyContent="space-between">

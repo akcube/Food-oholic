@@ -1,6 +1,6 @@
 // material
 import { Box, Grid, Container, Typography, Button, Stack } from '@mui/material';
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 // components
 import Page from '../../components/Page';
 import CustomerProductCard from '../../components/_dashboard/products/CustomerProductCard';
@@ -16,6 +16,11 @@ import { TextField } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
 import FuzzySearch from 'fuzzy-search';
+import { GetCustomer } from '../../services/customer.service';
+import { pink } from '@mui/material/colors';
+import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import { Switch, ToggleButton } from '@mui/material';
 
 const CustomerProducts = () => {
 
@@ -27,6 +32,8 @@ const CustomerProducts = () => {
     const [openFilter, setOpenFilter] = useState(false);
     const [sortingOption, setSortingOption] = useState('ratingDSC');
     const [form] = useForm();
+    const [favorites, setFavorites] = useState([]);
+    const [favoritesMode, setMode] = useState(0);
     const searcher = new FuzzySearch(ALLPRODUCTS, ['name'], {sort: true});
 
     const handleOpenFilter = () => {
@@ -67,6 +74,9 @@ const CustomerProducts = () => {
     }
 
     useAsyncEffect(async () => {
+        let cust = await GetCustomer(context, context.data.user.type_id);
+        if(cust.success) setFavorites(cust.data.favorites);
+
         let res = await GetAllProducts(context);
         for (var p of res){
           p.price = p.price.toString();
@@ -86,12 +96,23 @@ const CustomerProducts = () => {
         setProducts(res);
       }, []);
 
+    useEffect(()=>{
+      if(favoritesMode === 1){
+        let newp = PRODUCTS.filter((product)=>{
+          return favorites.includes(product._id);
+        });
+        setProducts(newp);
+      }
+      else setProducts(ALLPRODUCTS);
+    }, [favoritesMode, favorites]);
+
     const ProductList = ({ products, ...other }) => {
     return (
         <Grid container spacing={3} {...other}>
         {products.map((product) => (
             <Grid key={product._id} item xs={12} sm={6} md={3}>
-              <CustomerProductCard product={product} vendors={VENDORS}/>
+              <CustomerProductCard product={product} vendors={VENDORS}
+                favorites={favorites} setFavorites={setFavorites}/>
             </Grid>
         ))}
         </Grid>
@@ -164,6 +185,10 @@ const CustomerProducts = () => {
       </Menu>
     );  
 
+    const toggleFavorites = () => {
+      setMode(favoritesMode ^ 1);
+    }
+
     return (
         <>
         <Page title="Dashboard: Food items">
@@ -189,6 +214,17 @@ const CustomerProducts = () => {
                 }}
                 onChange={fuzzsearch}
                 label="Search products" id="search_bar" />
+                {/* <Switch defaultChecked label='favorites' color='error' /> */}
+                <ToggleButton
+                  value="check"
+                  color='error'
+                  selected={(favoritesMode===1)}
+                  onChange={toggleFavorites}
+                >
+                  {
+                    (favoritesMode===0) ? <FavoriteBorderOutlinedIcon color='error'/> : <FavoriteIcon color='error'/>
+                  }
+                </ToggleButton>
                 <ProductFilterSidebar
                   form={form}
                   filtersSet={filtersSet}
