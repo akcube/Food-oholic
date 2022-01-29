@@ -33,7 +33,7 @@ export const ProgressOrder = async (authContext, order) => {
     if(badToken(authContext)) return;
     if(order.status === 'Completed' || order.status === 'Rejected') return {success: false};
     try{
-        await axios.post("/order/update", {id: order._id, status: nxt[order.status]});
+        await axios.post("/order/update", {id: order._id, status: nxt[order.status], customer: order.customer});
         return {success: true};
     }
     catch(e){ return {success: false}; }
@@ -53,7 +53,7 @@ export const PickupOrder = async (authContext, order) => {
 export const RejectOrder = async (authContext, order) => {
     if(badToken(authContext)) return;
     try{
-        await axios.post("/order/update", {id: order._id, status: 'Rejected'});
+        await axios.post("/order/update", {id: order._id, status: 'Rejected', customer: order.customer});
         return {success: true};
     }
     catch(e){ return {success: false}; }
