@@ -6,7 +6,9 @@ import Vendor from "../models/vendor.model.js"
 import {ReasonPhrases, StatusCodes} from "http-status-codes"
 import Log from "../utils/log.js"
 import jwt from "jsonwebtoken"
-import {secret_key} from "../utils/config.js"
+import {secret_key, oauth_client_id} from "../utils/config.js"
+import { OAuth2Client } from "google-auth-library"
+const client = new OAuth2Client(oauth_client_id)
 
 const userRouter = express.Router();
 
@@ -80,6 +82,46 @@ userRouter.post('/login', async (req, res) => {
 	const payload = {
 		id: user.id,
 		type_id: user_type.id,
+		email: user.email,
+		user_type: user.user_type,
+		first_name: user.first_name,
+		last_name: user.last_name
+	};
+
+	const signedToken = jwt.sign(payload, secret_key, {expiresIn : 7200});
+	return res.status(StatusCodes.OK).json({success: true, token: signedToken});
+});
+
+userRouter.post('/googleLogin', async (req, res) => {
+	Log.debug(req.body);
+	
+	const token = req.body.tokenId;
+	try{
+		await client.verifyIdToken({
+			idToken: token,
+			audience: process.env.CLIENT_ID
+		});
+	}
+	catch(e){
+		return res.status(StatusCodes.UNAUTHORIZED).json({error: ReasonPhrases.UNAUTHORIZED, success: false});
+	}
+
+	let user = null;
+	try{
+		user = await User.findOne({ email: req.body.profileObj.email });
+		if(user===undefined || user === null) return res.status(StatusCodes.BAD_REQUEST).json({error: ReasonPhrases.BAD_REQUEST, success: false});
+	}
+	catch(e){
+		return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: ReasonPhrases.INTERNAL_SERVER_ERROR, success: false});
+	}
+
+	const user_type = (user.user_type === 0)
+	? await Customer.findOne({ email: user.email })
+	: await Vendor.findOne({ email: user.email });
+
+	const payload = {
+		id: user.id,
+		type_id: user_type._id,
 		email: user.email,
 		user_type: user.user_type,
 		first_name: user.first_name,

@@ -7,4 +7,5 @@ export const dev_env = process.env.DENV;
 export const secret_key = process.env.SECRET;
 export const server_email = process.env.SERVER_EMAIL;
 export const server_password = process.env.SERVER_PASS;
+export const oauth_client_id = process.env.GOOGLE_OAUTH_CLIENT_ID;
 

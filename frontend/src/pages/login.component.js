@@ -10,9 +10,10 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Form, Input, Button as AntButton, Checkbox as AntCheckbox} from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { loginUser } from '../services/auth.service';
+import { googleLoginUser, loginUser } from '../services/auth.service';
 import { AuthContext } from '../services/authContext';
 import { useNavigate } from 'react-router';
+import { GoogleLogin } from "react-google-login"
 
 const theme = createTheme();
 
@@ -21,6 +22,7 @@ class LoginPage extends React.Component {
     super(props);
     this.onFinish = this.onFinish.bind(this);
     this.Copyright = this.Copyright.bind(this);
+    this.handleLogin = this.handleLogin.bind(this);
   }
 
   Copyright(args) {
@@ -43,6 +45,11 @@ class LoginPage extends React.Component {
     if(this.context.isAuthenticated()) this.props.navigate("/");
     else alert("Login failed");
   };
+
+  handleLogin = async googleData => {  
+    console.log(googleData);
+    await googleLoginUser(googleData, this.context);
+  }
 
   render(){
     return (
@@ -128,7 +135,14 @@ class LoginPage extends React.Component {
                     </AntButton>
                   </Form.Item>
                 </Form>
-                <Grid container>
+                <GoogleLogin
+                  clientId={process.env.REACT_APP_GOOGLE_OAUTH_CLIENT_ID}
+                  buttonText="Log in with Google"
+                  onSuccess={this.handleLogin}
+                  onFailure={this.handleLogin}
+                  cookiePolicy={'single_host_origin'}
+                />
+                <Grid container style={{marginTop: 20}}>
                   <Grid item>
                     <Link href="/signup" variant="body2">
                       {"Don't have an account? Sign Up"}
