@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 // material
 import { Container, Stack, Typography } from '@mui/material';
 // components               
@@ -30,6 +30,7 @@ const VendorProducts = () => {
   const [typeid] = useState(useAuth().data.user.type_id);
   const [PRODUCTS, setProducts] = useState([]);
   const context = useContext(AuthContext);
+  const [forceRef, setForceRef] = useState(0);
   
   useAsyncEffect(async () => {
     let res = await GetProductsByVendor(context, context.data.user.type_id);
@@ -40,7 +41,7 @@ const VendorProducts = () => {
       }
     }
     setProducts(res);
-  }, []);
+  }, [forceRef]);
 
   const handleOpen = () => {
     setOpen(true);
@@ -56,7 +57,7 @@ const VendorProducts = () => {
       <Grid container spacing={3} {...other}>
         {products.map((product) => (
           <Grid key={product._id} item xs={12} sm={6} md={3}>
-            <VendorProductCard product={product} />
+            <VendorProductCard product={product} setForceRef={setForceRef} forceRef={forceRef}/>
           </Grid>
         ))}
       </Grid>
@@ -69,7 +70,7 @@ const VendorProducts = () => {
     let res = await AddProduct(context, values);
     if(res.success) message.success("Product added successfully");
     else message.error("Something went wrong. Try again.")
-    window.location.reload();
+    setForceRef(forceRef^1);
     handleClose();
   }
 

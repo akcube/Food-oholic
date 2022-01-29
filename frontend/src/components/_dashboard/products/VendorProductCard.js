@@ -34,7 +34,7 @@ VendorProductCard.propTypes = {
   product: PropTypes.object
 };
 
-export default function VendorProductCard({ product }) {
+export default function VendorProductCard({ product, forceRef, setForceRef }) {
   const {name, price, isVeg, image, addons, tags, vendor, rating} = product;
   const [form] = Form.useForm();
   const [open, setOpen] = useState(false);
@@ -64,7 +64,8 @@ export default function VendorProductCard({ product }) {
 
   const deleteItem = async () => {
     await DeleteProduct(context, {vendor: vendor, name: name});
-    window.location.reload();
+    setForceRef(forceRef^1);
+    // window.location.reload();
   }
 
   const onFinish = async (values) => {
@@ -73,7 +74,8 @@ export default function VendorProductCard({ product }) {
     let res = await UpdateProduct(context, values);
     if(res.success) message.success("Product updated successfully");
     else message.error("Something went wrong. Try again.")
-    window.location.reload();
+    setForceRef(forceRef^1);
+    // window.location.reload();
     handleClose();
   }
 
