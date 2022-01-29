@@ -20,7 +20,6 @@ customerRouter.get('/', async (req, res) => {
 
 customerRouter.post('/favorite', async(req, res) => {
 	const customer = await Customer.findById(req.body.id);
-    Log.debug(req.body.favorites);
 	try{
 		await Customer.updateOne({email: customer.email}, {favorites: req.body.favorites});
 	}

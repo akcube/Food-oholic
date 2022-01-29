@@ -44,7 +44,7 @@ CustomerProductCard.propTypes = {
   product: PropTypes.object
 };
 
-export default function CustomerProductCard({ product, vendors, favorites, setFavorites }) {
+export default function CustomerProductCard({ product, vendors, favorites, setFavorites, setoff}) {
   const {name, price, isVeg, image, addons, tags, rating, _id} = product;
   const vendor_id = product.vendor;
   const [form] = Form.useForm()
@@ -187,7 +187,14 @@ export default function CustomerProductCard({ product, vendors, favorites, setFa
     </Modal>
       <Card>
         <Box sx={{ pt: '100%', position: 'relative' }}>
-          <ProductImgStyle src={image} />
+          {
+            (setoff)
+            ?
+              <>
+                <img src={image} style={{ position: 'absolute', opacity: 0.3, top: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 12}} />
+              </>
+            : <ProductImgStyle src={image} />
+          }
         </Box>
 
         <Stack spacing={2} sx={{ p: 3 }}
@@ -200,11 +207,15 @@ export default function CustomerProductCard({ product, vendors, favorites, setFa
                 return <Chip sx={{mr: 1}} label={tag.tag} size="small" variant="outlined" />
               })
             }
-            <IconButton color="primary" size='small' style={{marginLeft: 'auto', color: 'red'}} onClick={favoriteItem} component="span">
+            {
+              (setoff) ? <></>
+              :
+              <IconButton color="primary" size='small' style={{marginLeft: 'auto', color: 'red'}} onClick={favoriteItem} component="span">
               {
                 (fillHeart===1) ? <FavoriteIcon /> : <FavoriteBorderOutlinedIcon />
               }
-            </IconButton>
+              </IconButton>
+            }
           </>
         </Stack>
 
@@ -222,11 +233,16 @@ export default function CustomerProductCard({ product, vendors, favorites, setFa
             <Typography variant="h6">
               {fCurrency(price)}
             </Typography>
-          <Link onClick={orderItem}>
-            <Fab color='secondary'>
-              <ShoppingCartIcon/>
-            </Fab>
-          </Link>
+            {
+              (setoff)
+              ? <></>
+              : 
+              <Link onClick={orderItem}>
+                <Fab color='secondary'>
+                  <ShoppingCartIcon/>
+                </Fab>
+              </Link>
+            }
           </Stack>
         </Stack>
       </Card>

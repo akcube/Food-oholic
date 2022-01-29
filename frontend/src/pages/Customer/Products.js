@@ -26,6 +26,7 @@ const CustomerProducts = () => {
 
     const [PRODUCTS, setProducts] = useState([]);
     const [ALLPRODUCTS, setAllProducts] = useState([]);
+    const [DISABLEDPRODUCTS, setDisabledProducts] = useState([]);
     const [VENDORS, setVendors] = useState([]);
     const [TAGS, setTags] = useState([]);
     const context = useContext(AuthContext);
@@ -73,6 +74,12 @@ const CustomerProducts = () => {
       else return 0;
     }
 
+    const getVendorFL = (product, vendors) => {
+      for(var v in vendors){
+        if(vendors[v]._id === product.vendor) return vendors[v];
+      }
+    }
+
     useAsyncEffect(async () => {
         let cust = await GetCustomer(context, context.data.user.type_id);
         if(cust.success) setFavorites(cust.data.favorites);
@@ -89,7 +96,28 @@ const CustomerProducts = () => {
         var tags = [];
         for(var v in res)
           for(var t in res[v].tags) tags.push(res[v].tags[t].tag);
-        tags = tags.filter(function(item, i, ar){ return ar.indexOf(item) === i; });        
+        tags = tags.filter(function(item, i, ar){ return ar.indexOf(item) === i; });   
+        
+        var curDate = new Date();
+        let dis = [];
+        for(var p in res){
+          let vendo = getVendorFL(res[p], vendorsList);
+          var opent = new Date(vendo.business_hours.open);
+          var closet = new Date(vendo.business_hours.close);
+          var start = opent.getHours()*60 + opent.getMinutes();
+          var end = closet.getHours()*60 + closet.getMinutes();
+          var cur = curDate.getHours()*60 + curDate.getMinutes();
+
+          if(!(cur >= start && cur <= end)){
+            dis.push(res[p]);
+          }
+        }
+
+        res = res.filter((item) => {
+          return !dis.includes(item);
+        })
+
+        setDisabledProducts(dis);
         setTags(tags);
         setVendors(vendorsList);
         setAllProducts(res);
@@ -112,10 +140,26 @@ const CustomerProducts = () => {
         {products.map((product) => (
             <Grid key={product._id} item xs={12} sm={6} md={3}>
               <CustomerProductCard product={product} vendors={VENDORS}
-                favorites={favorites} setFavorites={setFavorites}/>
+                favorites={favorites} setFavorites={setFavorites} setoff={false}/>
             </Grid>
         ))}
         </Grid>
+        );
+    }
+
+    const DisabledProductList = ({ products, ...other }) => {
+      return (
+        <>
+          <Typography style={{marginTop: 20, marginBottom: 10}} variant='h3'> Unavailable </Typography>
+          <Grid container spacing={3} {...other}>
+          {products.map((product) => (
+              <Grid key={product._id} item xs={12} sm={6} md={3}>
+                <CustomerProductCard product={product} vendors={VENDORS}
+                  favorites={favorites} setFavorites={setFavorites} setoff={true}/>
+              </Grid>
+          ))}
+          </Grid>
+        </>
         );
     }
 
@@ -247,8 +291,8 @@ const CustomerProducts = () => {
                 </Dropdown>
               </Stack>
             </Stack>
-    
             <ProductList products={PRODUCTS} />
+            <DisabledProductList products={DISABLEDPRODUCTS} />
           </Container>
         </Page>
         </>

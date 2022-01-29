@@ -38,6 +38,7 @@ export default function VendorProfile() {
     }, []);
 
     const onFinish = async (values) => {
+        console.log(values);
         let res = await UpdateUser(context, {...values, user_type: user.user_type});
         if(res.success) message.success("Successful. Please login again.");
         else message.error("Server error");

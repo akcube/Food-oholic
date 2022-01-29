@@ -125,7 +125,6 @@ userRouter.get('/', async (req, res) => {
 });
 
 userRouter.post('/update', async(req, res) => {
-	Log.debug(req.body);
 
 	let hashed_password;
 	try{
@@ -137,6 +136,11 @@ userRouter.post('/update', async(req, res) => {
 
 	let upd = req.body;
 	upd.hashed_password = hashed_password;
+	let business_hours = {
+		open: req.body.open_time,
+		close: req.body.close_time
+	}
+	upd.business_hours = business_hours;
 
 	try{
 		await User.updateOne({email: req.body.email}, upd);
