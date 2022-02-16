@@ -11,7 +11,7 @@ try{
   const connection = mongoose.connection;
   connection.once('open', () => {
     console.log("MongoDB database connection established successfully");
-
+    
     // Start listening on sv_port
     app.listen(sv_port, () => {
       console.log(`Server is running on port: ${sv_port}`);

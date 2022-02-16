@@ -4,7 +4,7 @@ import { badToken } from "./authContext";
 export const AddProduct = async (authContext, food) => {
     if(badToken(authContext)) return;
     try{
-        await axios.post("/food/add", food);
+        await axios.post("food/add", food);
         return {success: true};
     }
     catch(e){
@@ -15,7 +15,7 @@ export const AddProduct = async (authContext, food) => {
 export const DeleteProduct = async (authContext, food) => {
     if(badToken(authContext)) return;
     try{
-        await axios.post("/food/delete", food);
+        await axios.post("food/delete", food);
         return {success: true};
     }
     catch(e){
@@ -26,7 +26,7 @@ export const DeleteProduct = async (authContext, food) => {
 export const UpdateProduct = async (authContext, food) => {
     if(badToken(authContext)) return;
     try{
-        await axios.post("/food/update", food);
+        await axios.post("food/update", food);
         return {success: true};
     }
     catch(e){
@@ -37,7 +37,7 @@ export const UpdateProduct = async (authContext, food) => {
 export const GetAllProducts = async (authContext) => {
     if(badToken(authContext)) return;
     try{
-        let res = await axios.get("/food/");
+        let res = await axios.get("food/");
         return res.data;
     }
     catch(e){
@@ -48,7 +48,7 @@ export const GetAllProducts = async (authContext) => {
 export const GetProductsByVendor = async (authContext, vendor) => {
     if(badToken(authContext)) return;
     try{
-        let res = await axios.get("/food/", {params: {vendor: vendor}});
+        let res = await axios.get("food/", {params: {vendor: vendor}});
         return res.data;
     }
     catch(e){

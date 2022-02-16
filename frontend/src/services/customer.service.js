@@ -4,7 +4,7 @@ import { badToken } from "./authContext";
 export const GetCustomer = async (authContext, cid) => {
     if(badToken(authContext)) return;
     try{
-        let res = await axios.get("/customer/", {params: {id: cid}});
+        let res = await axios.get("customer/", {params: {id: cid}});
         return {success: true, data: res.data};
     }
     catch(e){
@@ -15,7 +15,7 @@ export const GetCustomer = async (authContext, cid) => {
 export const FavoriteItem = async (authContext, farr) => {
     if(badToken(authContext)) return;
     try{
-        await axios.post("/customer/favorite", {id: authContext.data.user.type_id, favorites: farr});
+        await axios.post("customer/favorite", {id: authContext.data.user.type_id, favorites: farr});
         return {success: true};
     }
     catch(e){

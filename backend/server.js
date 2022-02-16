@@ -14,11 +14,11 @@ import customerRouter from "./routes/customer.js";
 import orderRouter from "./routes/order.js"
 
 // Setup routes
-app.use("/user", userRouter);
-app.use("/food", foodRouter);
-app.use("/vendor", vendorRouter);
-app.use("/customer", customerRouter);
-app.use("/order", orderRouter);
-app.use("*", (req, res) => res.status(404).json({ error: "Not Found"}));
+app.use("/api/user", userRouter);
+app.use("/api/food", foodRouter);
+app.use("/api/vendor", vendorRouter);
+app.use("/api/customer", customerRouter);
+app.use("/api/order", orderRouter);
+app.use("/api/*", (req, res) => res.status(404).json({ error: "Not Found"}));
 
 export default app

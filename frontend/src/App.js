@@ -24,7 +24,7 @@ import CustomerProducts from "./pages/Customer/Products"
 import VendorProfile from "./pages/Vendor/Profile"
 import CustomerProfile from "./pages/Customer/Profile"
 
-axios.defaults.baseURL = 'http://localhost:27017'
+axios.defaults.baseURL = '/api'
 
 function App(){
   return (

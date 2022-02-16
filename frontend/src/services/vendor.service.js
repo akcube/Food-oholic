@@ -4,7 +4,7 @@ import { badToken } from "./authContext";
 export const GetAllVendors = async (authContext) => {
     if(badToken(authContext)) return;
     try{
-        let res = await axios.get("/vendor/");
+        let res = await axios.get("vendor/");
         return res.data;
     }
     catch(e){

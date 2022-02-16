@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+    backend:
+      build: ./backend
+      environment:
+        - PORT=27017
+        - FOODOHOLIC_DB_URI=mongodb://akcube-food:akcube-food@main-cluster-shard-00-00.ivell.mongodb.net:27017,main-cluster-shard-00-01.ivell.mongodb.net:27017,main-cluster-shard-00-02.ivell.mongodb.net:27017/foodoholic?ssl=true&replicaSet=atlas-pqcbpz-shard-0&authSource=admin&retryWrites=true&w=majority
+        - DENV=development
+        - SECRET=viditmathur
+        - SERVER_EMAIL=noreply.foodoholic@gmail.com
+        - SERVER_PASS=foodFood
+        - GOOGLE_OAUTH_CLIENT_ID=798131820132-fa7fscgsujpsgg88p0kgskaa585meprp.apps.googleusercontent.com
+      restart: unless-stopped
+    frontend:
+      depends_on:
+        - backend
+      build: ./frontend
+    nginx:
+      image: nginx:latest
+      container_name: webserver
+      restart: unless-stopped
+      depends_on:
+        - backend
+        - frontend
+      ports:
+        - 80:80
+        - 443:443
+      volumes:
+        - ./nginx/local.conf:/etc/nginx/nginx.conf
+
